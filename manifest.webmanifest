@@ -1,0 +1,17 @@
+{
+  "name": "Spectrum Calc",
+  "short_name": "Spectrum Calc",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b1018",
+  "theme_color": "#0c111b",
+  "description": "A free browser-first graphing calculator and math lab.",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

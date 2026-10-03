@@ -1,0 +1,97 @@
+/* Shared layout and accessible math-preview rules for both workspaces. */
+[hidden] { display: none !important; }
+*, *::before, *::after { box-sizing: border-box; }
+.card, .side, .side-card, .module-card, .field, .math-input-shell,
+.grid > *, .split > *, .mini-grid > *, .feature-grid > *, .matrix > * { min-width: 0; }
+input:not([type="range"]), select, textarea { min-width: 0; max-width: 100%; }
+.field input, .field select, .field textarea, .math-input-shell > input { width: 100%; }
+.field label { overflow-wrap: anywhere; line-height: 1.4; }
+.result, .solver-result, .module-output-row, .metric, .callout, .tip { overflow-wrap: anywhere; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid #79dfff; outline-offset: 3px;
+}
+.advanced-app .toolbar { gap: 14px 12px; align-items: start; }
+.advanced-app .toolbar > .field { flex: 1 1 170px; min-width: 0; }
+.advanced-app .toolbar > button { flex: 0 1 auto; min-height: 42px; align-self: end; }
+.advanced-app .field { gap: 7px; align-content: start; }
+.advanced-app .field label { font-size: 12px; min-height: 1.4em; letter-spacing: .035em; }
+.advanced-app .field input, .advanced-app .field select { min-height: 42px; font-size: 16px; }
+.advanced-app .card > p { font-size: 15px; line-height: 1.6; }
+.advanced-app .card h3 { line-height: 1.35; }
+.advanced-app .matrix { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.advanced-app .matrix.wide { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.advanced-app .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.advanced-app .top, .advanced-app .toplinks { flex-wrap: wrap; }
+.advanced-app .brand h1 { line-height: 1.4; }
+.advanced-app .result { max-width: 100%; }
+.advanced-app .bars { margin-bottom: 24px; overflow-x: auto; padding-bottom: 22px; }
+.advanced-app .tabs { max-width: 100%; scrollbar-width: thin; }
+.advanced-app .tab { min-height: 42px; }
+.calculator-app .expression-row { grid-template-columns: 9px minmax(0, 1fr) 30px; }
+.calculator-app .graph-foot span { min-width: 0; overflow-wrap: anywhere; }
+.calculator-app .module-nav { max-width: 100%; }
+.calculator-app .mini-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.calculator-app .tool-row, .calculator-app .tool-tabs { flex-wrap: wrap; }
+.calculator-app .tool-row .number-input { max-width: 100%; }
+.calculator-app .topbar { gap: 12px; }
+.math-input-shell { width: 100%; min-width: 0; }
+.math-preview {
+  display: block; max-width: 100%; min-width: 0; min-height: 1.65em;
+  padding: 8px 3px 4px; color: #d9eeff; font-size: 1.12rem; line-height: 1.5;
+  overflow-x: auto; overflow-y: hidden; white-space: nowrap; scrollbar-width: thin;
+}
+.math-preview math { font-size: inherit; }
+.math-preview.math-incomplete { color: #96a8bf; white-space: normal; font: 12px/1.5 system-ui, sans-serif; }
+.math-editor { position: relative; }
+.math-display {
+  display: flex; align-items: center; gap: 12px; min-height: 54px;
+  padding: 12px; border: 1px solid #30445c; border-radius: 9px;
+  background: #0c141f; color: #e3f1ff; pointer-events: none;
+}
+.math-display .math-typeset { flex: 1; min-width: 0; overflow: hidden; font-size: 1.4rem; }
+.math-display math { font-size: inherit; }
+.math-edit-hint { flex-shrink: 0; font: 12px/1.4 system-ui, sans-serif; color: #94a6bd; }
+.math-editor.is-rendered > input {
+  position: absolute; inset: 0; width: 100%; height: 100%; margin: 0;
+  opacity: 0; cursor: text; z-index: 1;
+}
+.math-editor.is-rendered:hover .math-display { border-color: #79dfff; }
+input[aria-invalid="true"], .math-editor:has(input[aria-invalid="true"]) .math-display { border-color: #ff8496; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+.math-edit-help { margin-top: 6px; color: #94a6bd; font: 12px/1.5 system-ui, sans-serif; }
+.math-editor.is-editing .math-preview:not(.math-incomplete)::before {
+  content: "Preview"; display: block; margin-bottom: 4px;
+  color: #94a6bd; font: 11px/1.4 system-ui, sans-serif;
+}
+.calculator-app .expression-row .math-display { border: 0; padding: 4px 0; background: transparent; }
+.calculator-app .expression-row .math-display .math-typeset { font-size: 1.25rem; }
+.sheet-formula-bar { display: flex; align-items: center; gap: 12px; min-width: 0; margin-top: 16px; }
+.sheet-formula-bar > span { flex: 0 0 auto; color: #a9bad0; font: 12px system-ui,sans-serif; }
+.sheet-formula-bar > .math-preview { flex: 1; border: 1px solid #30445c; border-radius: 9px; padding: 10px; }
+.sheet { table-layout: fixed; }
+.sheet th:first-child, .sheet td:first-child { width: 42px; }
+.sheet input { max-width: 100%; }
+@media (max-width: 980px) {
+  .calculator-app .module-view { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 680px) {
+  .advanced-app .shell { padding: 16px 12px 40px; }
+  .advanced-app .top { gap: 12px; }
+  .advanced-app .hero h2 { font-size: 30px; line-height: 1.12; }
+  .advanced-app .toolbar > .field { flex-basis: 145px; }
+  .advanced-app .toolbar > button { min-height: 44px; }
+  .advanced-app .grid, .advanced-app .split { grid-template-columns: minmax(0, 1fr); }
+  .advanced-app .feature-grid { grid-template-columns: minmax(0, 1fr); }
+  .advanced-app .tabs { position: static; }
+  .calculator-app .topbar { height: auto; min-height: 76px; flex-wrap: wrap; padding: 12px 0; }
+  .calculator-app .nav a[href="advanced.html"] { display: block; }
+  .calculator-app .nav { flex-wrap: wrap; }
+  .calculator-app #graph { min-height: 0; height: auto; }
+  .calculator-app .stats-graph { min-height: 0; }
+  .calculator-app .head-left { min-width: 0; }
+  .calculator-app .graph-readout { min-width: 0; max-width: calc(100% - 32px); padding: 6px 8px; }
+  .calculator-app .graph-readout .readout-value { font-size: 13px; }
+  .calculator-app .module-label { display: none; }
+  .calculator-app .number-input, .calculator-app .expression-row input { font-size: 16px; }
+}

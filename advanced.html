@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c111b">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="favicon.svg">
+  <title>Spectrum Calc — Advanced Lab</title>
+  <style>
+    :root{--bg:#0b1018;--panel:#121a27;--panel2:#182334;--line:#2a3a50;--text:#edf4ff;--muted:#94a6bd;--cyan:#57d9ff;--violet:#a98cff;--green:#66e3a4;--amber:#ffc46b;--red:#ff8496;--shadow:0 18px 50px #0005}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% -10%,#1a3150 0,#0b1018 38%),var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}button{cursor:pointer}
+    .shell{max-width:1440px;margin:auto;padding:24px 28px 70px}.top{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:24px}
+    .brand{display:flex;align-items:center;gap:12px}.mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--cyan),var(--violet));display:grid;place-items:center;color:#07111e;font-weight:900;box-shadow:0 8px 28px #57d9ff30}.brand h1{font-size:18px;margin:0}.brand small{display:block;color:var(--muted);margin-top:2px}
+    .toplinks{display:flex;gap:10px;align-items:center}.toplinks a,.ghost{color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:9px 12px}.toplinks a:hover,.ghost:hover{color:var(--text);border-color:#58718f}
+    .hero{display:flex;justify-content:space-between;align-items:end;gap:24px;margin:14px 0 20px}.eyebrow{color:var(--cyan);text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:800}.hero h2{font-size:clamp(28px,5vw,52px);line-height:1.02;margin:8px 0 10px;letter-spacing:-.045em}.hero p{color:var(--muted);max-width:760px;margin:0}.pill{padding:10px 13px;border:1px solid #34506b;background:#112132;color:#a8eaff;border-radius:999px;white-space:nowrap}
+    .tabs{display:flex;gap:7px;overflow:auto;padding:7px;border:1px solid var(--line);background:#0e1622;border-radius:15px;position:sticky;top:10px;z-index:3;box-shadow:0 8px 25px #0003}.tab{border:0;background:transparent;color:var(--muted);padding:10px 13px;border-radius:10px;white-space:nowrap}.tab:hover,.tab.active{background:var(--panel2);color:var(--text)}.tab.active{box-shadow:inset 0 0 0 1px #42617f}
+    .lab{display:none;margin-top:18px}.lab.active{display:block}.grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:16px}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.card{background:linear-gradient(145deg,#141e2d,#101723);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}.card h3{margin:0 0 5px;font-size:18px}.card>p,.hint{color:var(--muted);margin:0 0 15px}.toolbar{display:flex;flex-wrap:wrap;gap:9px;align-items:end}.field{display:grid;gap:5px;min-width:0;flex:1 1 150px}.field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.field input,.field select,.field textarea,textarea,input,select{background:#0c141f;border:1px solid #30445c;color:var(--text);border-radius:9px;padding:9px 10px;outline:none;min-width:0;max-width:100%;width:100%}.toolbar>.button{flex:0 0 auto}.field input:focus,.field select:focus,.field textarea:focus,textarea:focus,input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #57d9ff16}.button{border:0;border-radius:9px;background:linear-gradient(135deg,var(--cyan),#72a9ff);color:#07111e;font-weight:800;padding:10px 14px}.button.secondary{background:#223249;color:var(--text);border:1px solid #3b526d}.button.green{background:linear-gradient(135deg,var(--green),#76d4ff)}.button.amber{background:linear-gradient(135deg,var(--amber),#ff9a7a)}.result{padding:14px;border:1px solid #29435d;background:#0b1724;border-radius:12px;color:#dceeff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;min-height:46px;margin-top:14px}.ok{color:var(--green)}.warn{color:var(--amber)}.small{font-size:12px;color:var(--muted)}
+    .math-input-shell{min-width:0;width:100%}.math-preview{min-height:1.2em;padding:2px 3px 0;color:#cfeaff;font:17px/1.25 "Cambria Math","STIX Two Math",serif;white-space:nowrap;overflow-x:auto}.math-preview .math-fn{font-family:Inter,ui-sans-serif,sans-serif;font-size:.84em;color:#8ee8ff}.math-preview sup{font-size:.68em;line-height:0;vertical-align:super}.math-preview .math-muted{color:#627890;font:12px/1.3 Inter,ui-sans-serif,sans-serif}
+    svg.plot{width:100%;display:block;background:#09111b;border:1px solid #263a51;border-radius:14px;margin-top:15px}.legend{display:flex;flex-wrap:wrap;gap:10px;color:var(--muted);font-size:12px;margin-top:10px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}.dot.cyan{background:var(--cyan)}.dot.violet{background:var(--violet)}.dot.amber{background:var(--amber)}
+    .bars{display:flex;align-items:end;gap:8px;height:180px;border-bottom:1px solid #38506a;padding:12px 8px 0;margin-top:15px}.bar{flex:1;background:linear-gradient(180deg,var(--cyan),#3d6cff);border-radius:6px 6px 0 0;min-width:12px;position:relative}.bar span{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}
+    .matrix{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;max-width:230px}.matrix input{width:100%;text-align:center}.matrix.wide{grid-template-columns:repeat(3,1fr);max-width:350px}.split{display:grid;grid-template-columns:1fr 1fr;gap:18px}.output-list{display:grid;gap:8px;margin-top:12px}.metric{display:flex;justify-content:space-between;gap:12px;padding:9px 11px;background:#101c2a;border-radius:9px;color:var(--muted)}.metric strong{color:var(--text);font-family:ui-monospace,monospace}
+    .sheet-wrap{overflow:auto;border:1px solid #30445c;border-radius:12px;margin-top:15px}.sheet{border-collapse:collapse;min-width:640px;width:100%}.sheet th,.sheet td{border:1px solid #273a52;padding:0}.sheet th{height:30px;color:var(--muted);background:#162333;font-weight:600}.sheet td:first-child{width:42px;text-align:center;color:var(--muted);background:#162333}.sheet input{width:100%;border:0;border-radius:0;padding:9px;background:#0d1622}.sheet input:focus{background:#142538;box-shadow:inset 0 0 0 1px var(--cyan)}
+    canvas{width:100%;height:auto;display:block;background:#09111b;border:1px solid #263a51;border-radius:14px}.canvas-controls{display:flex;gap:10px;align-items:center;margin-top:12px}.canvas-controls input{flex:1}.geometry{background:#09111b;border:1px solid #263a51;border-radius:14px;width:100%;display:block}
+    .code{min-height:150px;width:100%;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.5}.cas-output{font-family:ui-monospace,monospace}.callout{border-left:3px solid var(--cyan);padding:10px 13px;background:#102131;color:#c9eaff;border-radius:0 10px 10px 0;margin-top:14px}.notice{border-left-color:var(--amber);color:#ffe2ae}.feature-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}.feature{padding:13px;background:#101c2a;border:1px solid #263a51;border-radius:12px}.feature b{display:block;margin-bottom:3px}.feature span{color:var(--muted);font-size:12px}
+    @media(max-width:900px){.grid,.grid.three,.split{grid-template-columns:1fr}.feature-grid{grid-template-columns:repeat(2,1fr)}.hero{display:block}.pill{display:inline-block;margin-top:15px}}@media(max-width:550px){.shell{padding:18px 14px 50px}.feature-grid{grid-template-columns:1fr}.toplinks a{font-size:12px;padding:8px}.card{padding:14px}.hero h2{font-size:36px}}
+  </style>
+  <link rel="stylesheet" href="ui-fixes.css">
+  <script src="math-ui.js"></script>
+  <script src="calc-engine.js"></script>
+  <script src="offline-update.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <a class="brand" href="index.html"><span class="mark">∿</span><span><h1>Spectrum Calc</h1><small>Advanced Lab</small></span></a>
+      <nav class="toplinks"><a href="index.html">← Simple calculator</a><a href="#offline">Offline</a></nav>
+    </header>
+    <section class="hero">
+      <div><div class="eyebrow">Build beyond the handheld</div><h2>One calm home for serious math.</h2><p>Explore the capabilities you asked for in focused workspaces. Everything here runs in your browser first, with no account required for the core tools.</p></div>
+      <div class="pill">12 workspaces · v0.4.0</div>
+    </section>
+    <nav class="tabs" aria-label="Advanced workspaces">
+      <button class="tab active" data-lab="plot">Plot modes</button><button class="tab" data-lab="regression">Regression</button><button class="tab" data-lab="equation">Equation solver</button><button class="tab" data-lab="probability">Probability</button><button class="tab" data-lab="linear">Linear algebra</button><button class="tab" data-lab="sheet">Spreadsheet</button><button class="tab" data-lab="surface">3D graphing</button><button class="tab" data-lab="geometry">Geometry</button><button class="tab" data-lab="cas">CAS</button><button class="tab" data-lab="python">Python</button><button class="tab" data-lab="offline">Offline</button><button class="tab" data-lab="classroom">Classroom</button>
+    </nav>
+
+    <section class="lab active" id="lab-plot">
+      <div class="grid">
+        <article class="card"><h3>Parametric, polar, and inequality graphs</h3><p>Switch the model and draw it immediately. Use <code>x</code>, <code>y</code>, <code>t</code>, and standard functions such as <code>sin</code>, <code>cos</code>, and <code>sqrt</code>.</p>
+          <div class="toolbar"><div class="field"><label>Mode</label><select id="plot-mode"><option value="function">Function y = f(x)</option><option value="parametric">Parametric x(t), y(t)</option><option value="polar">Polar r(θ)</option><option value="inequality">Inequality y &gt; f(x)</option></select></div><div class="field"><label>Expression 1</label><input id="plot-e1" class="math-source" value="sin(x)"></div><div class="field" id="plot-e2-wrap" hidden><label>Expression 2</label><input id="plot-e2" class="math-source" value="cos(t)"></div><button class="button" id="draw-plot">Draw</button></div>
+          <div class="toolbar" style="margin-top:10px"><div class="field"><label>Horizontal range</label><input id="plot-xrange" value="-10,10"></div><div class="field"><label>Vertical range</label><input id="plot-yrange" value="-7,7"></div><div class="field" id="plot-trange-wrap" hidden><label>Parameter range (radians)</label><input id="plot-trange" value="-6.28318530718,6.28318530718"></div><div class="field" id="plot-relation-wrap" hidden><label>Shade where</label><select id="plot-relation"><option value=">">y &gt; f(x)</option><option value=">=">y ≥ f(x)</option><option value="<">y &lt; f(x)</option><option value="<=">y ≤ f(x)</option></select></div></div>
+          <svg class="plot" id="plot-svg" viewBox="0 0 900 520" role="img" aria-label="Interactive graph"></svg><div class="legend"><span><i class="dot cyan"></i>primary curve</span><span><i class="dot violet"></i>parametric/polar</span><span><i class="dot amber"></i>inequality region</span></div>
+        </article>
+        <aside class="card"><h3>Live graphing</h3><p>Graphs update as you type. Press Enter or Draw for an immediate update. Trigonometric functions use radians; log is base 10 and ln is natural log.</p><div class="feature-grid" style="grid-template-columns:1fr 1fr"><div class="feature"><b>Parametric</b><span>x(t), y(t), with an editable parameter interval</span></div><div class="feature"><b>Polar</b><span>Use theta, θ, or t for the angle</span></div><div class="feature"><b>Inequalities</b><span>Choose a shading direction or enter y ≤ x^2</span></div><div class="feature"><b>Safe errors</b><span>Invalid inputs explain what needs changing</span></div></div><div class="result" id="plot-status" role="status" aria-live="polite">Ready.</div></aside>
+      </div>
+    </section>
+
+    <section class="lab" id="lab-regression">
+      <div class="grid"><article class="card"><h3>Regression and statistics</h3><p>Compare a straight line, quadratic curve, or exponential model against your data. Enter one <code>x, y</code> pair per line.</p><textarea class="code" id="reg-data" style="min-height:130px">1, 2
+2, 3.1
+3, 4.8
+4, 6.2
+5, 7.1
+6, 8.9</textarea><div class="toolbar" style="margin-top:10px"><div class="field"><label>Model</label><select id="reg-model"><option value="linear">Linear</option><option value="quadratic">Quadratic</option><option value="exponential">Exponential</option></select></div><button class="button" id="run-regression">Fit model</button></div><div class="result" id="reg-result">Enter data and fit a model.</div></article><aside class="card"><h3>Model view</h3><svg class="plot" id="reg-svg" viewBox="0 0 900 440" aria-label="Regression plot"></svg><p class="small">R² is a descriptive score; inspect the plot and the subject matter before trusting a model.</p></aside></div>
+    </section>
+
+    <section class="lab" id="lab-equation">
+      <div class="grid"><article class="card"><h3>Equation solver</h3><p>Write an equation with <code>=</code>. The solver searches the chosen interval numerically and reports real roots it can find.</p><div class="field"><label>Equation in x</label><input id="equation-input" class="math-source" value="x^2 = 4"><div class="math-preview" id="equation-preview"></div></div><div class="toolbar" style="margin-top:10px"><div class="field"><label>Search from</label><input id="equation-min" type="number" value="-10"></div><div class="field"><label>Search to</label><input id="equation-max" type="number" value="10"></div><button class="button" id="run-equation">Solve equation</button></div><div class="result" id="equation-result">Try x^2 = 4 or sin(x) = 0.</div></article><aside class="card"><h3>Numerical, not symbolic</h3><p>This gives real approximations for many classroom-sized equations. Exact factorisation, complex roots, systems, and assumptions belong in the deeper CAS phase.</p><div class="callout notice">If the function has a discontinuity or a very narrow root, widen the interval or use a graph to inspect it first.</div></aside></div>
+    </section>
+
+    <section class="lab" id="lab-probability">
+      <div class="grid"><article class="card"><h3>Probability tools</h3><p>Quick distributions for learning and estimation. Results are computed locally.</p><div class="toolbar"><div class="field"><label>Distribution</label><select id="prob-kind"><option value="normal">Normal</option><option value="binomial">Binomial</option></select></div><div class="field"><label>Value / successes</label><input id="prob-x" type="number" value="1"></div><div class="field" id="prob-mu-wrap"><label>Mean μ</label><input id="prob-mu" type="number" value="0"></div><div class="field" id="prob-sigma-wrap"><label>Std dev σ</label><input id="prob-sigma" type="number" value="1"></div><div class="field" id="prob-n-wrap" hidden><label>Trials n</label><input id="prob-n" type="number" value="10"></div><div class="field" id="prob-p-wrap" hidden><label>Chance p</label><input id="prob-p" type="number" value=".5" step=".01"></div><button class="button" id="run-prob">Calculate</button></div><div class="result" id="prob-result">Choose a distribution and calculate.</div><div class="bars" id="prob-bars"></div></article><aside class="card"><h3>Useful next steps</h3><p>Normal density and CDF plus binomial PMF are included now. A production release can add Poisson, geometric, confidence intervals, sampling, and distribution overlays.</p><div class="callout">Tip: switch to Binomial to see a probability mass chart for every number of successes.</div></aside></div>
+    </section>
+
+    <section class="lab" id="lab-linear">
+      <div class="grid"><article class="card"><h3>Matrices, vectors, and units</h3><p>Small, transparent calculations first: 2×2 matrix determinant/inverse, vector products, and common unit conversion.</p><div class="split"><div><h4>2×2 matrix</h4><div class="matrix"><input id="m11" value="2"><input id="m12" value="1"><input id="m21" value="3"><input id="m22" value="4"></div><button class="button" id="matrix-calc" style="margin-top:10px">Calculate matrix</button><div class="result" id="matrix-result"></div></div><div><h4>Vectors</h4><div class="matrix wide"><input id="v1x" value="1"><input id="v1y" value="2"><input id="v1z" value="3"><input id="v2x" value="4"><input id="v2y" value="5"><input id="v2z" value="6"></div><button class="button secondary" id="vector-calc" style="margin-top:10px">Calculate vectors</button><div class="result" id="vector-result"></div></div></div></article><aside class="card"><h3>Unit converter</h3><p>Length, mass, temperature, and angle conversions.</p><div class="toolbar"><div class="field"><label>Category</label><select id="unit-kind"><option value="length">Length</option><option value="mass">Mass</option><option value="temperature">Temperature</option><option value="angle">Angle</option></select></div><div class="field"><label>Value</label><input id="unit-value" value="1" type="number"></div><div class="field"><label>From</label><select id="unit-from"></select></div><div class="field"><label>To</label><select id="unit-to"></select></div><button class="button green" id="unit-calc">Convert</button></div><div class="result" id="unit-result"></div></aside></div>
+    </section>
+
+    <section class="lab" id="lab-sheet"><article class="card"><h3>Spreadsheet mode</h3><p>Enter numbers or formulas. Supported starters include <code>=A1+B1</code>, <code>=A1*2</code>, and <code>=SUM(A1:A3)</code>.</p><div class="toolbar"><button class="button" id="sheet-demo">Load example</button><button class="button secondary" id="sheet-clear">Clear sheet</button><span class="small">Changes are kept in this page while it is open.</span></div><div class="sheet-wrap"><table class="sheet" id="sheet-table"></table></div><div class="result" id="sheet-result">Select a cell to see its value.</div></article></section>
+
+    <section class="lab" id="lab-surface"><div class="grid"><article class="card"><h3>3D graphing</h3><p>Plot a surface z = f(x,y), choose a preset, or edit the expression. Rotate the wireframe to inspect it.</p><div class="toolbar"><div class="field"><label>Surface</label><select id="surface-kind"><option value="ripple">Ripple z = sin(r) / r</option><option value="saddle">Saddle z = x² − y²</option><option value="waves">Waves z = sin(x) cos(y)</option><option value="custom">Custom expression</option></select></div><div class="field"><label>z = f(x,y)</label><input id="surface-expression" class="math-source" value="sinc(sqrt(x^2+y^2))"></div><button class="button" id="draw-surface">Draw surface</button></div><div class="canvas-controls"><label class="small" for="surface-rotate">Rotation</label><input id="surface-rotate" type="range" min="-180" max="180" value="-35"><span id="rotate-value" class="small">−35°</span></div><canvas id="surface-canvas" width="900" height="520" role="img" aria-label="Surface wireframe"></canvas><div class="result" id="surface-status" role="status"></div></article><aside class="card"><h3>Surface coordinates</h3><p>The domain is −6 to 6 on both horizontal axes. Height is scaled automatically; the status reports the sampled z range. Undefined points leave gaps.</p><div class="callout">sinc(r) means sin(r)/r with the limiting value 1 at r = 0. This wireframe works offline.</div></aside></div></section>
+
+    <section class="lab" id="lab-geometry"><div class="grid"><article class="card"><h3>Geometry workspace</h3><p>Edit the two points or their coordinates. The diagram updates with the line, midpoint, and distance.</p><div class="toolbar"><div class="field"><label>A x</label><input id="gx1" value="-3" type="number"></div><div class="field"><label>A y</label><input id="gy1" value="-2" type="number"></div><div class="field"><label>B x</label><input id="gx2" value="4" type="number"></div><div class="field"><label>B y</label><input id="gy2" value="3" type="number"></div><button class="button" id="draw-geometry">Update</button></div><svg class="geometry" id="geometry-svg" viewBox="0 0 800 480"></svg></article><aside class="card"><h3>Measurements</h3><div class="output-list"><div class="metric"><span>Distance AB</span><strong id="g-distance">—</strong></div><div class="metric"><span>Midpoint</span><strong id="g-midpoint">—</strong></div><div class="metric"><span>Slope</span><strong id="g-slope">—</strong></div></div><div class="callout">This same coordinate surface can grow into constructions, circles, intersections, and proof steps.</div></aside></div></section>
+
+    <section class="lab" id="lab-cas"><div class="grid"><article class="card"><h3>CAS / symbolic algebra starter</h3><p>Differentiate, integrate, or normalize common polynomial and trigonometric expressions. For example: <code>3*x^3 - 2*x + sin(x)</code>.</p><div class="field"><label>Expression in x</label><input id="cas-input" class="math-source" value="3*x^3 - 2*x + sin(x)"><div class="math-preview" id="cas-preview"></div></div><div class="toolbar" style="margin-top:10px"><button class="button" data-cas="derivative">Differentiate</button><button class="button secondary" data-cas="integral">Integrate</button><button class="button secondary" data-cas="normalize">Normalize</button></div><div class="result cas-output" id="cas-result"></div></article><aside class="card"><h3>Scope</h3><p>This is a useful learning layer, not yet a full computer algebra system. A deeper version should add a proper symbolic engine for factoring, solving, limits, matrices, assumptions, and exact arithmetic.</p><div class="callout notice">The answer stays symbolic; no server is needed for these starter rules.</div></aside></div></section>
+
+    <section class="lab" id="lab-python"><div class="grid"><article class="card"><h3>Python notebook</h3><p>Run Python in the browser through Pyodide. The first run downloads the runtime; after that, browser caching can make it feel much faster.</p><textarea class="code" id="python-code">import math
+values = [round(math.sin(i / 4), 3) for i in range(9)]
+print(values)
+print("mean =", round(sum(values) / len(values), 3))</textarea><div class="toolbar" style="margin-top:10px"><button class="button" id="run-python">Load Python and run</button><button class="button secondary" id="stop-python" disabled>Stop / reset</button><span id="python-status" class="small">Runtime not loaded.</span></div><div class="result" id="python-output" role="status">Your output will appear here.</div></article><aside class="card"><h3>Python scratchpad</h3><p>Code runs in a separate worker so the calculator remains responsive. Stop resets the runtime and variables. Each run has a 30-second limit after loading.</p><div class="callout notice">The first load needs an internet connection. Core Python is included; extra packages are not automatically installed. Only run code you trust. This is a single-script scratchpad, not a multi-cell notebook.</div></aside></div></section>
+
+    <section class="lab" id="lab-offline"><div class="grid"><article class="card"><h3>Offline mode</h3><p>Install the calculator as a small progressive web app. The core pages and the dependency-free tools can be cached for use without a connection.</p><div class="toolbar"><button class="button green" id="enable-offline">Enable offline cache</button><button class="button secondary" id="check-offline">Check status</button></div><div class="result" id="offline-result">Offline setup has not been checked.</div><div class="callout notice">Service workers cannot be installed from a <code>file://</code> preview. Use a normal web address or local web server for this button.</div></article><aside class="card"><h3>What gets cached</h3><p>The simple calculator, Advanced Lab, icons, manifest, and this offline worker. Python remains an optional download because it is much larger.</p><div class="feature-grid"><div class="feature"><b>Fast reloads</b><span>static files load locally</span></div><div class="feature"><b>No login</b><span>core tools stay public</span></div><div class="feature"><b>Installable</b><span>works like an app on supported browsers</span></div><div class="feature"><b>Honest state</b><span>network-dependent parts say so</span></div></div></aside></div></section>
+
+    <section class="lab" id="lab-classroom"><div class="grid"><article class="card"><h3>Classroom tools</h3><p>Create a small shareable lesson pack locally. This is the foundation for teacher prompts, examples, and student practice without requiring accounts.</p><div class="field"><label>Lesson title</label><input id="lesson-title" value="Exploring sine waves"></div><div class="field" style="margin-top:10px"><label>Teacher note</label><textarea id="lesson-note" rows="4">Change the frequency slider and describe what happens to the graph.</textarea></div><div class="toolbar" style="margin-top:10px"><button class="button" id="download-lesson">Download lesson pack</button><button class="button secondary" id="copy-lesson">Copy lesson link</button></div><div class="result" id="classroom-result">Lesson packs are local files for now. Cloud classrooms can be added after the core calculator is stable.</div></article><aside class="card"><h3>Designed for the next phase</h3><p>With a small backend, this can become teacher-led sessions, assigned exercises, anonymous student joins, live results, and safe moderation.</p><div class="callout">No student data is sent anywhere by this first local version.</div></aside></div></section>
+  </main>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const $$ = (sel) => [...document.querySelectorAll(sel)];
+    const fmt = (n) => Number.isFinite(n) ? (n!==0&&(Math.abs(n)<1e-6||Math.abs(n)>=1e9)?Number(n.toPrecision(7)).toString():Number(n.toFixed(6)).toString()) : "undefined";
+    const compile = CalcEngine.compile;
+
+    // Tabs are deliberately plain buttons so every workspace remains usable on a small screen.
+    $$(".tab").forEach(tab => tab.addEventListener("click", () => {
+      $$(".tab").forEach(t => t.classList.toggle("active", t === tab));
+      $$(".lab").forEach(l => l.classList.toggle("active", l.id === "lab-" + tab.dataset.lab));
+      if (tab.dataset.lab === "surface") drawSurface();
+      if (tab.dataset.lab === "geometry") drawGeometry();
+      if (tab.dataset.lab === "sheet" && !$("sheet-table").children.length) buildSheet();
+      if (tab.dataset.lab === "offline") checkOffline();
+      history.replaceState(null, "", "#" + tab.dataset.lab);
+    }));
+
+    function axis(svg, xmin, xmax, ymin, ymax, w=900, h=520) {
+      const X = x => (x-xmin)/(xmax-xmin)*w, Y = y => h-(y-ymin)/(ymax-ymin)*h;
+      let out = '<rect width="100%" height="100%" fill="#09111b"/>';
+      for (let i=0;i<=10;i++) { const x=xmin+i/10*(xmax-xmin),xx=X(x);out+='<line x1="'+xx+'" y1="0" x2="'+xx+'" y2="'+h+'" stroke="#1b2b3d"/><text x="'+Math.min(w-65,xx+3)+'" y="'+Math.max(16,Math.min(h-6,Y(0)-5))+'" fill="#71869e" font-size="11">'+fmt(x)+'</text>'; }
+      for (let i=0;i<=8;i++) { const y=ymin+i/8*(ymax-ymin),yy=Y(y);out+='<line x1="0" y1="'+yy+'" x2="'+w+'" y2="'+yy+'" stroke="#1b2b3d"/><text x="'+Math.max(5,Math.min(w-65,X(0)+5))+'" y="'+Math.max(13,yy-3)+'" fill="#71869e" font-size="11">'+fmt(y)+'</text>'; }
+      if(xmin<=0&&xmax>=0)out+='<line x1="'+X(0)+'" x2="'+X(0)+'" y1="0" y2="'+h+'" stroke="#68809b"/>';
+      if(ymin<=0&&ymax>=0)out+='<line x1="0" x2="'+w+'" y1="'+Y(0)+'" y2="'+Y(0)+'" stroke="#68809b"/>';
+      return {X,Y,out};
+    }
+    function drawPlot() {
+      const mode=$("plot-mode").value, w=900,h=520,svg=$("plot-svg");
+      let g;
+      try {
+        const xr=CalcEngine.interval($("plot-xrange").value,'Horizontal range'),yr=CalcEngine.interval($("plot-yrange").value,'Vertical range');
+        g=axis(svg,...xr,...yr,w,h);
+        let e1=$("plot-e1").value.trim(),relation=$("plot-relation").value;
+        if(mode==='inequality'){
+          const match=e1.replace(/≤/g,'<=').replace(/≥/g,'>=').match(/^y\s*(<=|>=|<|>)\s*(.+)$/i);
+          if(match){relation=match[1];e1=match[2];$("plot-relation").value=relation;}
+        } else if(mode==='function')e1=e1.replace(/^y\s*=\s*/i,'');
+        const polar=mode==='polar',parametric=mode==='parametric',param=polar||parametric;
+        const f1=compile(e1,polar?['theta','t']:parametric?['t']:['x']),f2=parametric?compile($("plot-e2").value,['t']):null;
+        const tr=param?CalcEngine.interval($("plot-trange").value,'Parameter range'):xr;
+        const point=t=>{if(parametric)return [f1(t),f2(t)];if(polar){const r=f1(t,t);return [r*Math.cos(t),r*Math.sin(t)];}return [t,f1(t)];};
+        const segments=[];let segment=[],last=null,finiteCount=0,visible=0;
+        for(let i=0;i<=1200;i++){
+          const t=tr[0]+i/1200*(tr[1]-tr[0]),p=point(t),valid=p.every(Number.isFinite);
+          if(valid){finiteCount++;if(p[0]>=xr[0]&&p[0]<=xr[1]&&p[1]>=yr[0]&&p[1]<=yr[1])visible++;}
+          const q=valid?[g.X(p[0]),g.Y(p[1])]:null;
+          const mid=last?point((last.t+t)/2):null;
+          const broken=!q||q.some(v=>Math.abs(v)>1e7)||(last&&(!mid.every(Number.isFinite)||Math.abs(q[1]-last.q[1])>h*1.5||Math.abs(q[0]-last.q[0])>w*1.5));
+          if(broken){if(segment.length>1)segments.push(segment);segment=[];}
+          if(q&&q.every(v=>Math.abs(v)<=1e7))segment.push(q);
+          last=q?{t,q}:null;
+        }
+        if(segment.length>1)segments.push(segment);
+        if(!finiteCount)throw new Error('No real values in this interval. Check the expression domain.');
+        const color=mode==='inequality'?'#ffc46b':param?'#a98cff':'#57d9ff';
+        g.out+='<defs><clipPath id="advanced-plot-clip"><rect width="900" height="520"/></clipPath></defs><g clip-path="url(#advanced-plot-clip)">';
+        segments.forEach(pts=>{
+          const d=pts.map((p,i)=>(i?'L':'M')+p.map(v=>v.toFixed(3)).join(',')).join(' ');
+          if(mode==='inequality'){const edge=relation.startsWith('>')?0:h;g.out+='<path class="inequality-fill" d="'+d+' L '+pts.at(-1)[0]+' '+edge+' L '+pts[0][0]+' '+edge+' Z" fill="'+color+'" opacity=".22"/>';}
+          g.out+='<path class="plot-curve" d="'+d+'" fill="none" stroke="'+color+'" stroke-width="3"'+(mode==='inequality'&&!relation.includes('=')?' stroke-dasharray="8 6"':'')+'/>';
+        });
+        svg.innerHTML=g.out+'</g>';
+        svg.setAttribute('aria-label',mode+' graph: '+$("plot-e1").value);
+        $("plot-status").textContent=visible?'Drawn. '+finiteCount+' real samples. Radians.':'Computed, but the curve is outside this view. Change the horizontal or vertical range.';
+      } catch(err) { $("plot-status").textContent='Cannot draw: '+err.message; svg.innerHTML=g?g.out:''; }
+    }
+    const plotDrafts={function:['sin(x)','sin(t)'],parametric:['cos(t)','sin(t)'],polar:['2*cos(5*theta)',''],inequality:['x^2','']};
+    let plotMode='function',plotTimer;
+    function setPlotMode(){
+      plotDrafts[plotMode]=[$('plot-e1').value,$('plot-e2').value];plotMode=$('plot-mode').value;
+      [$('plot-e1').value,$('plot-e2').value]=plotDrafts[plotMode];
+      $('plot-e2-wrap').hidden=plotMode!=='parametric';$('plot-trange-wrap').hidden=!['parametric','polar'].includes(plotMode);$('plot-relation-wrap').hidden=plotMode!=='inequality';
+      $('plot-e1').closest('.field').querySelector('label').textContent=plotMode==='parametric'?'x(t)':plotMode==='polar'?'r(θ)':'Expression';
+      $('plot-e2').closest('.field').querySelector('label').textContent='y(t)';
+      SpectrumMath.refresh?.();drawPlot();
+    }
+    $('plot-mode').addEventListener('change',setPlotMode);
+    ['plot-e1','plot-e2','plot-xrange','plot-yrange','plot-trange'].forEach(id=>{
+      $(id).addEventListener('input',()=>{clearTimeout(plotTimer);plotTimer=setTimeout(drawPlot,150);});
+      $(id).addEventListener('change',drawPlot);
+      $(id).addEventListener('keydown',event=>{if(event.key==='Enter'){clearTimeout(plotTimer);drawPlot();}});
+    });
+    $('plot-relation').addEventListener('change',drawPlot);
+    $("draw-plot").addEventListener("click",drawPlot); drawPlot();
+
+    function regressionData(){return CalcEngine.dataPairs($('reg-data').value);}
+    function solveLinearSystem(a,b){const n=b.length,m=a.map(row=>row.slice()),v=b.slice();for(let col=0;col<n;col++){let pivot=col;for(let row=col+1;row<n;row++)if(Math.abs(m[row][col])>Math.abs(m[pivot][col]))pivot=row;if(Math.abs(m[pivot][col])<1e-12)return null;[m[col],m[pivot]]=[m[pivot],m[col]];[v[col],v[pivot]]=[v[pivot],v[col]];for(let row=col+1;row<n;row++){const q=m[row][col]/m[col][col];for(let k=col;k<n;k++)m[row][k]-=q*m[col][k];v[row]-=q*v[col];}}const x=Array(n).fill(0);for(let i=n-1;i>=0;i--){let sum=v[i];for(let j=i+1;j<n;j++)sum-=m[i][j]*x[j];x[i]=sum/m[i][i];}return x;}
+    function fitRegression(data,kind){let source=data,features,predict,label;if(kind==="exponential"){source=data.filter(p=>p.y>0);if(source.length<2)return null;features=p=>[1,p.x];const transformed=source.map(p=>({x:p.x,y:Math.log(p.y)}));const normal=features(transformed[0]).map((_,i)=>features(transformed[0]).map((__,j)=>transformed.reduce((sum,p)=>sum+features(p)[i]*features(p)[j],0)));const rhs=features(transformed[0]).map((_,i)=>transformed.reduce((sum,p)=>sum+features(p)[i]*p.y,0));const beta=solveLinearSystem(normal,rhs);if(!beta)return null;predict=x=>Math.exp(beta[0]+beta[1]*x);label="y = "+fmt(Math.exp(beta[0]))+" · e^("+fmt(beta[1])+"x)";return {predict,label};}const degree=kind==="quadratic"?2:1;features=p=>Array.from({length:degree+1},(_,i)=>Math.pow(p.x,i));const normal=Array.from({length:degree+1},(_,i)=>Array.from({length:degree+1},(_,j)=>source.reduce((sum,p)=>sum+features(p)[i]*features(p)[j],0)));const rhs=Array.from({length:degree+1},(_,i)=>source.reduce((sum,p)=>sum+features(p)[i]*p.y,0));const beta=solveLinearSystem(normal,rhs);if(!beta)return null;predict=x=>beta.reduce((sum,c,i)=>sum+c*Math.pow(x,i),0);label=kind==="quadratic"?"y = "+fmt(beta[2])+"x² "+(beta[1]<0?"−":"+")+" "+fmt(Math.abs(beta[1]))+"x "+(beta[0]<0?"−":"+")+" "+fmt(Math.abs(beta[0])):"y = "+fmt(beta[1])+"x "+(beta[0]<0?"−":"+")+" "+fmt(Math.abs(beta[0]));return {predict,label};}
+    function drawRegression(data,model){const svg=$("reg-svg"),W=900,H=440,pad={l:50,r:18,t:18,b:38},xs=data.map(p=>p.x),ys=data.map(p=>p.y);const lo=Math.min(...xs),hi=Math.max(...xs),xPad=(hi-lo||1)*.15,xmin=lo-xPad,xmax=hi+xPad,samples=80,curve=Array.from({length:samples+1},(_,i)=>{const x=xmin+i/samples*(xmax-xmin);return {x,y:model.predict(x)}}),allY=ys.concat(curve.map(p=>p.y)).filter(Number.isFinite),yl=Math.min(...allY),yh=Math.max(...allY),yPad=(yh-yl||1)*.2,ymin=yl-yPad,ymax=yh+yPad,X=x=>(x-xmin)/(xmax-xmin)*(W-pad.l-pad.r)+pad.l,Y=y=>H-pad.b-(y-ymin)/(ymax-ymin)*(H-pad.t-pad.b);let out='<rect width="100%" height="100%" rx="14" fill="#09111b"/>';for(let i=0;i<5;i++){const x=pad.l+i/4*(W-pad.l-pad.r),y=pad.t+i/4*(H-pad.t-pad.b);out+='<line x1="'+x+'" y1="'+pad.t+'" x2="'+x+'" y2="'+(H-pad.b)+'" stroke="#1b2b3d"/><line x1="'+pad.l+'" y1="'+y+'" x2="'+(W-pad.r)+'" y2="'+y+'" stroke="#1b2b3d"/>';}out+='<path d="'+curve.map((p,i)=>(i?"L":"M")+X(p.x).toFixed(1)+" "+Y(p.y).toFixed(1)).join(" ")+'" fill="none" stroke="#57d9ff" stroke-width="3"/>';data.forEach(p=>{out+='<circle cx="'+X(p.x).toFixed(1)+'" cy="'+Y(p.y).toFixed(1)+'" r="6" fill="#a98cff"/>';});out+='<text x="'+pad.l+'" y="'+(H-12)+'" fill="#8498b0" font-size="12">'+fmt(xmin)+'</text><text x="'+(W-pad.r)+'" y="'+(H-12)+'" text-anchor="end" fill="#8498b0" font-size="12">'+fmt(xmax)+'</text>';svg.innerHTML=out;}
+    function runRegression(){
+      const out=$('reg-result');
+      try{
+        const data=regressionData(),kind=$('reg-model').value;
+        if(kind==='exponential'&&data.some(p=>p.y<=0))throw new Error('Exponential regression requires every y value to be positive. No rows were discarded.');
+        const model=fitRegression(data,kind);
+        if(!model||data.some(p=>!Number.isFinite(model.predict(p.x))))throw new Error('Cannot fit this data: use distinct x values and enough points (3 for quadratic).');
+        const mean=data.reduce((s,p)=>s+p.y,0)/data.length,total=data.reduce((s,p)=>s+(p.y-mean)**2,0),residual=data.reduce((s,p)=>s+(p.y-model.predict(p.x))**2,0);
+        if(!Number.isFinite(total)||!Number.isFinite(residual))throw new Error('Values are too large for this fit. Rescale the data.');
+        out.textContent=data.length+' points\n'+model.label+'\nR² = '+(total?fmt(1-residual/total):'undefined (all y values are equal)')+'\nMean y = '+fmt(mean)+'\nSample standard deviation y = '+fmt(Math.sqrt(total/(data.length-1)));
+        drawRegression(data,model);
+      }catch(err){out.textContent=err.message;$('reg-svg').replaceChildren();}
+    }
+    $("run-regression").addEventListener("click",runRegression);runRegression();
+
+    function solveEquation(){
+      const out=$('equation-result');
+      try{
+        const sides=$('equation-input').value.split('=');
+        if(sides.length!==2||sides.some(s=>!s.trim()))throw new Error('Use one equals sign, for example x^2 = 4.');
+        const min=CalcEngine.finite($('equation-min').value,'Search start'),max=CalcEngine.finite($('equation-max').value,'Search end');
+        const fn=compile('('+sides[0]+')-('+sides[1]+')',['x']),result=CalcEngine.roots(fn,min,max);
+        out.textContent=result.identity?'Both sides agree at every sampled point. There is no isolated root to report.':result.roots.length?'Real roots in ['+min+', '+max+']: '+result.roots.map(fmt).join(', '):'No real roots found in this interval. A numerical search can miss closely spaced roots; inspect the graph.';
+      }catch(err){out.textContent=err.message;}
+    }
+    $("run-equation").addEventListener("click",solveEquation);solveEquation();
+
+    function erf(x){const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+.3275911*x),a=1-(((((1.061405429*t-1.453152027)*t+1.421413741)*t-.284496736)*t+.254829592)*t)*Math.exp(-x*x);return s*a;}
+    function choose(n,k){if(k<0||k>n)return 0;k=Math.min(k,n-k);let r=1;for(let i=1;i<=k;i++)r=r*(n-k+i)/i;return r;}
+    function runProb(){
+      const kind=$("prob-kind").value,read=id=>$(id).value.trim()===""?NaN:Number($(id).value),x=read("prob-x");
+      const invalid=message=>{$("prob-result").textContent=message;$("prob-bars").replaceChildren();};
+      if(!Number.isFinite(x)){invalid("Enter a finite value for x / successes.");return;}
+      let result="",vals=[],labels=[];
+      if(kind==="normal"){
+        const mu=read("prob-mu"),sd=read("prob-sigma");
+        if(!Number.isFinite(mu)||!Number.isFinite(sd)||sd<=0){invalid("Enter a finite mean and a standard deviation greater than zero.");return;}
+        const z=(x-mu)/sd,pdf=Math.exp(-z*z/2)/(sd*Math.sqrt(2*Math.PI)),cdf=.5*(1+erf(z/Math.sqrt(2)));
+        result="z-score = "+fmt(z)+"\nPDF at x = "+fmt(pdf)+"\nCDF P(X ≤ x) = "+fmt(cdf);
+        for(let i=-3;i<=3;i++){vals.push(Math.exp(-i*i/2)/(sd*Math.sqrt(2*Math.PI)));labels.push(fmt(mu+i*sd));}
+      }else{
+        const n=read("prob-n"),p=read("prob-p");
+        if(!Number.isInteger(n)||n<0||n>500||!Number.isFinite(p)||p<0||p>1||!Number.isInteger(x)||x<0||x>n){invalid("Use whole trials from 0 to 500, whole successes from 0 to n, and probability p from 0 to 1.");return;}
+        for(let k=0;k<=n;k++){vals.push(choose(n,k)*Math.pow(p,k)*Math.pow(1-p,n-k));labels.push(String(k));}
+        result="P(X = "+x+") = "+fmt(vals[x])+"\nExpected value = "+fmt(n*p)+"\nVariance = "+fmt(n*p*(1-p));
+      }
+      $("prob-result").textContent=result;
+      const max=Math.max(...vals,1e-10);
+      $("prob-bars").innerHTML=vals.map((v,i)=>'<div class="bar" title="'+labels[i]+': '+fmt(v)+'" style="height:'+Math.max(2,v/max*125)+'px"><span>'+labels[i]+'</span></div>').join("");
+    }
+    $("prob-kind").addEventListener("change",()=>{const bin=$("prob-kind").value==="binomial";["prob-n-wrap","prob-p-wrap"].forEach(id=>$(id).hidden=!bin);["prob-mu-wrap","prob-sigma-wrap"].forEach(id=>$(id).hidden=bin);runProb();});$("run-prob").addEventListener("click",runProb);runProb();
+
+    function readCalc(id){const value=compile($(id).value,[])();return CalcEngine.finite(value,'Entry');}
+    function runMatrix(){try{const [a,b,c,d]=['m11','m12','m21','m22'].map(readCalc),det=a*d-b*c;
+      if(!Number.isFinite(det))throw new Error('Values overflow. Rescale the matrix.');
+      const near=Math.abs(det)<=Number.EPSILON*16*Math.max(Math.abs(a*d),Math.abs(b*c));
+      $('matrix-result').textContent='det(A) = '+fmt(det)+'\n'+(near?'Singular or numerically ill-conditioned: no reliable inverse.':'A⁻¹ = [ '+[d/det,-b/det].map(fmt).join('  ')+' ; '+[-c/det,a/det].map(fmt).join('  ')+' ]');
+    }catch(err){$('matrix-result').textContent=err.message;}}
+    function runVectors(){try{const a=['v1x','v1y','v1z'].map(readCalc),b=['v2x','v2y','v2z'].map(readCalc),dot=a.reduce((s,v,i)=>s+v*b[i],0),cross=[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+      if(![dot,...cross].every(Number.isFinite))throw new Error('Values overflow. Rescale the vectors.');
+      $('vector-result').textContent='a · b = '+fmt(dot)+'\na × b = ['+cross.map(fmt).join(', ')+']';
+    }catch(err){$('vector-result').textContent=err.message;}}
+    $('matrix-calc').addEventListener('click',runMatrix);$('vector-calc').addEventListener('click',runVectors);runMatrix();runVectors();
+    const units={length:{m:1,km:1000,cm:.01,ft:.3048,in:.0254},mass:{kg:1,g:.001,lb:.45359237},angle:{rad:1,deg:Math.PI/180}};
+    function fillUnits(){const k=$('unit-kind').value,opts=k==='temperature'?['C','F','K']:Object.keys(units[k]);['unit-from','unit-to'].forEach(id=>$(id).innerHTML=opts.map(x=>'<option>'+x+'</option>').join(''));$('unit-to').value=opts[1];}
+    function convertUnits(){try{const k=$('unit-kind').value,v=CalcEngine.finite($('unit-value').value),f=$('unit-from').value,t=$('unit-to').value;let out;
+      if(k==='temperature'){const c=f==='C'?v:f==='F'?(v-32)*5/9:v-273.15;if(c<-273.15-1e-10)throw new Error('Temperature cannot be below absolute zero.');out=t==='C'?c:t==='F'?c*9/5+32:c+273.15;}else out=v*units[k][f]/units[k][t];
+      $('unit-result').textContent=fmt(CalcEngine.finite(out,'Result'))+' '+t;
+    }catch(err){$('unit-result').textContent=err.message;}}
+    $('unit-kind').addEventListener('change',()=>{fillUnits();convertUnits();});fillUnits();$('unit-calc').addEventListener('click',convertUnits);convertUnits();
+
+    const cols=["A","B","C","D","E","F"],rows=6;function buildSheet(){let h="<tr><th></th>"+cols.map(c=>"<th>"+c+"</th>").join("")+"</tr>";for(let r=1;r<=rows;r++)h+="<tr><td>"+r+"</td>"+cols.map(c=>'<td><input data-cell="'+c+r+'" aria-label="'+c+r+'"></td>').join("")+"</tr>";$("sheet-table").innerHTML=h;$$("[data-cell]").forEach(i=>{i.addEventListener("input",()=>{renderSheetValue(i)});i.addEventListener("focus",()=>renderSheetValue(i));});}
+    function cellValue(ref){return CalcEngine.sheetValue(ref,cell=>document.querySelector('[data-cell="'+cell+'"]').value);}
+    function renderSheetValue(input){try{$('sheet-result').textContent=input.dataset.cell+' = '+fmt(cellValue(input.dataset.cell));}catch(err){$('sheet-result').textContent=input.dataset.cell+': '+err.message;}}
+    $("sheet-demo").addEventListener("click",()=>{if(!$("sheet-table").children.length)buildSheet();const vals={A1:"12",B1:"8",C1:"=A1+B1",A2:"3",B2:"4",C2:"=A2*B2",A3:"=SUM(A1:A2)"};Object.entries(vals).forEach(([k,v])=>document.querySelector('[data-cell="'+k+'"]').value=v);$("sheet-result").textContent="Example loaded. Click a cell to inspect it.";});$("sheet-clear").addEventListener("click",()=>{buildSheet();$("sheet-result").textContent="Sheet cleared.";});buildSheet();
+
+    const surfaceCanvas=$('surface-canvas'),ctx=surfaceCanvas.getContext('2d');
+    function drawSurface(){
+      const out=$('surface-status'),w=surfaceCanvas.width,h=surfaceCanvas.height;
+      try{
+        if(!ctx)throw new Error('Canvas graphics are unavailable in this browser.');
+        ctx.clearRect(0,0,w,h);ctx.fillStyle='#09111b';ctx.fillRect(0,0,w,h);
+        const fn=compile($('surface-expression').value,['x','y']),ang=+$('surface-rotate').value*Math.PI/180,lines=[];
+        for(let axis=0;axis<2;axis++)for(let fixed=-6;fixed<=6;fixed+=.5){const line=[];for(let variable=-6;variable<=6;variable+=.25){const x=axis?fixed:variable,y=axis?variable:fixed;line.push([x,y,fn(x,y)]);}lines.push(line);}
+        const zs=lines.flat().map(p=>p[2]).filter(Number.isFinite);
+        if(!zs.length)throw new Error('No real surface values on x,y from -6 to 6.');
+        const lo=Math.min(...zs),hi=Math.max(...zs),zScale=100/Math.max(1,Math.abs(lo),Math.abs(hi));
+        lines.forEach((line,i)=>{let d='',drawing=false;line.forEach(([x,y,z])=>{if(!Number.isFinite(z)){drawing=false;return;}const px=w/2+(x*Math.cos(ang)-y*Math.sin(ang))*28,py=h/2+(x*Math.sin(ang)+y*Math.cos(ang))*14-z*zScale;d+=(drawing?'L':'M')+px.toFixed(2)+' '+py.toFixed(2)+' ';drawing=true;});ctx.strokeStyle=i<25?'#57d9ffaa':'#a98cffaa';ctx.lineWidth=1;ctx.stroke(new Path2D(d));});
+        out.textContent='Drawn. x and y: −6 to 6. Sampled z: '+fmt(lo)+' to '+fmt(hi)+'. Height is scaled to fit.';
+      }catch(err){out.textContent='Cannot draw: '+err.message;}
+    }
+    $('draw-surface').addEventListener('click',drawSurface);
+    $('surface-kind').addEventListener('change',()=>{const presets={ripple:'sinc(sqrt(x^2+y^2))',saddle:'x^2-y^2',waves:'sin(x)*cos(y)'};if(presets[$('surface-kind').value])$('surface-expression').value=presets[$('surface-kind').value];SpectrumMath.refresh?.();drawSurface();});
+    $('surface-expression').addEventListener('input',()=>{$('surface-kind').value='custom';});
+    $('surface-rotate').addEventListener('input',()=>{$('rotate-value').textContent=$('surface-rotate').value+'°';drawSurface();});drawSurface();
+
+    function drawGeometry(){try{
+      const [x1,y1,x2,y2]=['gx1','gy1','gx2','gy2'].map(id=>CalcEngine.finite($(id).value,'Coordinate'));
+      if([x1,y1,x2,y2].some(v=>Math.abs(v)>1e9))throw new Error('Coordinates must be within ±10⁹.');
+      const w=800,h=480,mx=(x1+x2)/2,my=(y1+y2)/2,scale=Math.min(45,640/Math.max(1,Math.abs(x2-x1)),320/Math.max(1,Math.abs(y2-y1))),g=axis($('geometry-svg'),mx-w/2/scale,mx+w/2/scale,my-h/2/scale,my+h/2/scale,w,h),{X,Y}=g;
+      $('geometry-svg').innerHTML=g.out+'<line x1="'+X(x1)+'" y1="'+Y(y1)+'" x2="'+X(x2)+'" y2="'+Y(y2)+'" stroke="#57d9ff" stroke-width="4"/><circle cx="'+X(mx)+'" cy="'+Y(my)+'" r="6" fill="#ffc46b"/><circle cx="'+X(x1)+'" cy="'+Y(y1)+'" r="8" fill="#a98cff"/><circle cx="'+X(x2)+'" cy="'+Y(y2)+'" r="8" fill="#a98cff"/><text x="'+(X(x1)+12)+'" y="'+(Y(y1)-12)+'" fill="#fff">A</text><text x="'+(X(x2)+12)+'" y="'+(Y(y2)-12)+'" fill="#fff">B</text>';
+      $('g-distance').textContent=fmt(Math.hypot(x2-x1,y2-y1));$('g-midpoint').textContent='('+fmt(mx)+', '+fmt(my)+')';$('g-slope').textContent=x2===x1?'undefined':fmt((y2-y1)/(x2-x1));
+    }catch(err){$('geometry-svg').replaceChildren();$('g-distance').textContent=err.message;$('g-midpoint').textContent='—';$('g-slope').textContent='—';}}
+    $('draw-geometry').addEventListener('click',drawGeometry);drawGeometry();
+
+    let lastCasAction='normalize';
+    function casAction(action){lastCasAction=action;try{$('cas-result').textContent=CalcEngine.symbolic($('cas-input').value,action);}catch(err){$('cas-result').textContent=err.message;}}
+    $$('[data-cas]').forEach(b=>b.addEventListener('click',()=>casAction(b.dataset.cas)));casAction('normalize');
+
+    let pythonWorker=null,pythonTimer;
+    function pythonIdle(){clearTimeout(pythonTimer);$('run-python').disabled=false;$('stop-python').disabled=!pythonWorker;}
+    function stopPython(message='Stopped. Python variables were reset.'){
+      pythonWorker?.terminate();pythonWorker=null;pythonIdle();$('python-status').textContent=message;
+    }
+    function runPython(){
+      if($('run-python').disabled)return;
+      try{
+        if(!window.Worker||location.protocol==='file:')throw new Error('Python needs a supported browser over localhost or HTTPS.');
+        $('run-python').disabled=true;$('stop-python').disabled=false;$('python-output').textContent='';$('python-status').textContent='Loading Python…';
+        if(!pythonWorker){
+          pythonWorker=new Worker('python-worker.js');
+          pythonWorker.onmessage=({data})=>{
+            if(data.type==='ready'){clearTimeout(pythonTimer);$('python-status').textContent='Running…';pythonTimer=setTimeout(()=>stopPython('Stopped after 30 seconds. Variables reset.'),30000);return;}
+            pythonIdle();
+            if(data.type==='done'){$('python-status').textContent='Finished.';$('python-output').textContent=data.output;}
+            else{$('python-status').textContent=data.phase==='load'?'Runtime download failed. Check your connection and try again.':'Python error.';$('python-output').textContent=[data.output,data.message].filter(Boolean).join('\n');}
+          };
+          pythonWorker.onerror=event=>{stopPython('Python worker failed. Try again.');$('python-output').textContent=event.message||'Unable to start Python.';};
+        }
+        pythonTimer=setTimeout(()=>stopPython('Runtime loading timed out. Check your connection and try again.'),120000);
+        pythonWorker.postMessage({code:$('python-code').value});
+      }catch(err){stopPython('Python unavailable.');$('python-output').textContent=err.message;}
+    }
+    $('run-python').addEventListener('click',runPython);$('stop-python').addEventListener('click',()=>stopPython());
+    async function enableOffline(){const out=$('offline-result');if(!('serviceWorker' in navigator)){out.textContent='This browser does not support offline installation.';return;}
+      $('enable-offline').disabled=true;out.textContent='Downloading the calculator for offline use…';
+      try{const reg=await navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}),worker=reg.installing||reg.waiting||reg.active;
+        if(!worker)throw new Error('No offline worker was created.');
+        if(worker.state!=='activated')await new Promise((resolve,reject)=>{
+          const timer=setTimeout(()=>{worker.removeEventListener('statechange',check);reject(new Error('Installation timed out. Check your connection and try again.'));},30000);
+          function check(){if(worker.state==='activated'||worker.state==='redundant'){clearTimeout(timer);worker.removeEventListener('statechange',check);worker.state==='activated'?resolve():reject(new Error('Offline files could not be cached.'));}}
+          worker.addEventListener('statechange',check);check();
+        });
+        out.textContent='Core calculator cached and ready offline. Python still needs its separate download.';
+      }catch(err){out.textContent='Offline setup failed. Use localhost or HTTPS. '+err.message;}finally{$('enable-offline').disabled=false;}
+    }
+    async function checkOffline(){const out=$('offline-result');if(!('serviceWorker' in navigator)){out.textContent='Service workers are not available in this browser.';return;}try{const reg=await navigator.serviceWorker.getRegistration();out.textContent=reg?.active?'Offline worker is active. Python is not included in the core cache.':reg?'Offline installation is still in progress.':'Offline mode is not enabled yet.';}catch{out.textContent='Open the calculator over localhost or HTTPS to use offline mode.';}}
+    $('enable-offline').addEventListener('click',enableOffline);$('check-offline').addEventListener('click',checkOffline);
+    function lesson(){return {title:$("lesson-title").value,note:$("lesson-note").value,createdAt:new Date().toISOString(),starter:"spectrum-calc",version:1};}$("download-lesson").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(lesson(),null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="spectrum-lesson.json";a.click();URL.revokeObjectURL(a.href);$("classroom-result").textContent="Lesson pack downloaded. It contains no student data.";});$("copy-lesson").addEventListener("click",async()=>{const text=location.href.split("#")[0]+"#classroom?lesson="+encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(lesson())))));try{await navigator.clipboard.writeText(text);$("classroom-result").textContent="Lesson link copied. It is encoded locally in the URL.";}catch{$("classroom-result").textContent=text;}});
+    function openHashWorkspace(){
+      const [hash,query]=location.hash.slice(1).split('?');
+      if(hash==='classroom'&&query){try{
+        const encoded=new URLSearchParams(query).get('lesson');
+        if(!encoded||encoded.length>20000)throw new Error('Lesson link is missing or too large.');
+        const pack=JSON.parse(decodeURIComponent(escape(atob(encoded))));
+        if(pack.starter!=='spectrum-calc'||pack.version!==1||typeof pack.title!=='string'||typeof pack.note!=='string'||pack.title.length>200||pack.note.length>5000)throw new Error('Invalid lesson pack.');
+        $('lesson-title').value=pack.title;$('lesson-note').value=pack.note;$('classroom-result').textContent='Shared lesson loaded. No student data was sent.';
+      }catch(err){$('classroom-result').textContent='Cannot load lesson: '+err.message;}}
+      const tab=$$('.tab').find(t=>t.dataset.lab===hash);if(tab)tab.click();
+    }
+    // Recalculate edited fields consistently, including Enter from the math editor.
+    function live(ids,action){let timer;ids.forEach(id=>{
+      $(id).addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(action,180);});
+      $(id).addEventListener('change',()=>{clearTimeout(timer);action();});
+      $(id).addEventListener('keydown',event=>{if(event.key==='Enter'&&event.target.tagName!=='TEXTAREA'){clearTimeout(timer);action();}});
+    });}
+    live(['reg-data','reg-model'],runRegression);
+    live(['equation-input','equation-min','equation-max'],solveEquation);
+    live(['prob-x','prob-mu','prob-sigma','prob-n','prob-p'],runProb);
+    live(['m11','m12','m21','m22'],runMatrix);live(['v1x','v1y','v1z','v2x','v2y','v2z'],runVectors);
+    live(['unit-value','unit-from','unit-to'],convertUnits);live(['gx1','gy1','gx2','gy2'],drawGeometry);
+    live(['surface-expression'],drawSurface);live(['cas-input'],()=>casAction(lastCasAction));
+    $$('textarea,input').forEach(input=>{if(input.id==='lesson-title')input.maxLength=200;if(input.id==='lesson-note')input.maxLength=5000;});
+    $$('.result').forEach(node=>{node.setAttribute('role','status');node.setAttribute('aria-live','polite');});
+    window.addEventListener('hashchange',openHashWorkspace);openHashWorkspace();
+  </script>
+</body>
+</html>

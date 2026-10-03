@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0a0c12" />
+  <meta name="description" content="Spectrum Calc is a free browser-based graphing calculator for exploring functions with color and clarity." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>Spectrum Calc — Free graphing calculator</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090b10;
+      --panel: #10131b;
+      --panel-2: #151925;
+      --panel-3: #1b2030;
+      --line: #2a3040;
+      --line-soft: #202534;
+      --text: #f7f8f5;
+      --muted: #969eae;
+      --muted-2: #687183;
+      --mint: #8bf7c7;
+      --blue: #7cd9ff;
+      --pink: #ff7eb6;
+      --yellow: #ffd66e;
+      --danger: #ff8b8b;
+      --radius: 18px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: radial-gradient(circle at 80% -10%, #1c2539 0%, transparent 30%), var(--bg); color: var(--text); min-width: 320px; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .shell { width: min(1440px, calc(100% - 40px)); margin: 0 auto; }
+    .topbar { height: 76px; display:flex; align-items:center; justify-content:space-between; border-bottom: 1px solid var(--line-soft); }
+    .brand { display:flex; align-items:center; gap: 11px; color: var(--text); text-decoration:none; font-weight: 750; letter-spacing:-.02em; }
+    .brand-mark { width: 30px; height: 30px; border-radius: 10px; background: #1a2632; position: relative; overflow:hidden; box-shadow: inset 0 0 0 1px #3b4856; }
+    .brand-mark::before { content:""; position:absolute; inset: 7px 5px 7px 5px; border-bottom: 3px solid var(--mint); border-radius: 0 0 50% 50%; transform: rotate(-25deg); }
+    .brand-mark::after { content:""; position:absolute; width: 6px; height: 6px; border-radius:50%; background:var(--pink); left: 5px; top: 17px; box-shadow: 10px -8px 0 var(--blue), 19px -4px 0 var(--yellow); }
+    .brand-name { font-size: 16px; }
+    .brand-name small { color: var(--muted); font-size: 11px; font-weight: 600; display:block; letter-spacing:.08em; text-transform:uppercase; margin-top:2px; }
+    .nav { display:flex; align-items:center; gap: 7px; }
+    .nav a { color: var(--muted); text-decoration:none; padding: 9px 12px; font-size:13px; border-radius: 10px; }
+    .nav a:hover, .nav a.active { color:var(--text); background: #171c28; }
+    .status { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:12px; padding-left: 15px; border-left:1px solid var(--line); }
+    .status i { width:7px; height:7px; border-radius:50%; background:var(--mint); box-shadow:0 0 0 4px rgba(139,247,199,.08); }
+    .page-intro { display:flex; justify-content:space-between; gap:24px; align-items:end; padding: 32px 0 22px; }
+    .eyebrow { color:var(--mint); text-transform:uppercase; font-size:11px; letter-spacing:.14em; font-weight:800; }
+    h1 { margin: 7px 0 0; font-size: clamp(27px, 3vw, 42px); letter-spacing:-.045em; line-height:1.02; }
+    .intro-copy { margin: 11px 0 0; color:var(--muted); font-size:15px; max-width: 630px; line-height:1.55; }
+    .intro-note { text-align:right; color:var(--muted-2); font-size:12px; line-height:1.5; padding-bottom: 4px; }
+    .intro-note strong { display:block; color:var(--text); font-size:13px; font-weight:650; }
+    .workspace { display:grid; grid-template-columns: minmax(0, 1.68fr) minmax(320px, .72fr); gap:16px; align-items:start; }
+    .card { background: linear-gradient(145deg, rgba(20,24,35,.96), rgba(14,17,25,.96)); border:1px solid var(--line); border-radius:var(--radius); box-shadow: 0 14px 45px rgba(0,0,0,.18); }
+    .graph-card { overflow:hidden; }
+    .graph-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding: 15px 17px; border-bottom:1px solid var(--line-soft); }
+    .head-left { display:flex; align-items:center; gap:10px; }
+    .live-pill { display:inline-flex; align-items:center; gap:7px; color:var(--mint); background:rgba(139,247,199,.08); border:1px solid rgba(139,247,199,.2); padding:6px 9px; border-radius:999px; font-size:11px; font-weight:750; }
+    .live-pill span { width:6px; height:6px; border-radius:50%; background:var(--mint); }
+    .graph-title { font-size:13px; color:var(--muted); }
+    .toolbar { display:flex; gap:6px; }
+    .icon-btn { width:32px; height:32px; padding:0; border-radius:9px; border:1px solid var(--line); background:var(--panel-2); color:var(--muted); display:grid; place-items:center; transition:.2s ease; }
+    .icon-btn:hover { color:var(--text); border-color:#4a566a; background:#1d2431; }
+    .icon-btn svg { width:15px; height:15px; }
+    .graph-wrap { position:relative; background:#0d1119; }
+    #graph { width:100%; min-height: 560px; display:block; }
+    #graph .grid { stroke:#222b39; stroke-width:1; }
+    #graph .minor-grid { stroke:#171e2b; stroke-width:1; }
+    #graph .axis { stroke:#566176; stroke-width:1.4; }
+    #graph .curve { fill:none; stroke-linecap:round; stroke-linejoin:round; stroke-width:3; filter: drop-shadow(0 0 6px rgba(139,247,199,.2)); }
+    #graph text { fill:#647084; font-size:12px; font-family:inherit; }
+    #graph .zero-label { fill:#98a4b7; }
+    .graph-readout { position:absolute; left:18px; bottom:17px; background:rgba(9,11,16,.86); border:1px solid var(--line); border-radius:10px; padding:10px 12px; min-width: 180px; backdrop-filter: blur(10px); pointer-events:none; }
+    .graph-readout .readout-label { color:var(--muted-2); font-size:10px; text-transform:uppercase; letter-spacing:.12em; font-weight:800; }
+    .graph-readout .readout-value { margin-top:3px; font-variant-numeric: tabular-nums; font-size:15px; color:var(--text); }
+    .graph-foot { display:flex; justify-content:space-between; gap:14px; padding: 12px 17px; border-top:1px solid var(--line-soft); color:var(--muted); font-size:12px; }
+    .graph-foot span { display:flex; align-items:center; gap:7px; }
+    .legend-dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+    .side { display:flex; flex-direction:column; gap:16px; }
+    .side-card { padding:17px; }
+    .card-kicker { color:var(--muted-2); font-size:11px; text-transform:uppercase; letter-spacing:.12em; font-weight:800; }
+    .card-title { font-size:16px; font-weight:700; letter-spacing:-.02em; margin-top:4px; }
+    .card-subtitle { color:var(--muted); font-size:12px; line-height:1.45; margin:4px 0 14px; }
+    .expression-list { display:flex; flex-direction:column; gap:8px; }
+    .expression-row { display:grid; grid-template-columns: 9px 1fr 30px; align-items:center; gap:9px; padding: 8px 9px; border:1px solid var(--line); border-radius:11px; background:rgba(10,12,18,.52); }
+    .math-input-shell { min-width:0; width:100%; }
+    .math-preview { min-height:1.2em; padding:2px 2px 0; color:#cfeaff; font:16px/1.25 "Cambria Math","STIX Two Math",serif; white-space:nowrap; overflow-x:auto; }
+    .math-preview .math-fn { font-family:Inter,ui-sans-serif,sans-serif; font-size:.84em; color:var(--blue); }
+    .math-preview sup { font-size:.68em; line-height:0; vertical-align:super; }
+    .math-preview .math-muted { color:var(--muted-2); font:11px/1.3 Inter,ui-sans-serif,sans-serif; }
+    .expression-row:focus-within { border-color:#50617a; box-shadow:0 0 0 3px rgba(124,217,255,.06); }
+    .expression-row input { color:var(--text); background:transparent; border:0; outline:0; min-width:0; font-size:14px; }
+    .expression-row input::placeholder { color:var(--muted-2); }
+    .color-dot { width:8px; height:8px; border-radius:50%; box-shadow:0 0 0 3px rgba(255,255,255,.04); }
+    .row-menu { color:var(--muted-2); font-size:18px; line-height:1; background:none; border:0; padding:0 2px 3px; }
+    .add-expression { width:100%; margin-top:10px; border:1px dashed #3b465a; background:transparent; color:var(--muted); border-radius:10px; padding:9px; font-size:12px; }
+    .add-expression:hover { color:var(--text); border-color:#69778f; }
+    .mini-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:13px; }
+    .field label { color:var(--muted-2); font-size:11px; display:block; margin-bottom:5px; }
+    .number-input { width:100%; border:1px solid var(--line); background:var(--panel-2); color:var(--text); border-radius:9px; padding:8px 9px; outline:none; font-size:13px; }
+    .number-input:focus { border-color:#57708e; }
+    .range-row { margin-top:13px; }
+    .range-label { display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-size:12px; margin-bottom:7px; }
+    .range-label output { color:var(--text); font-variant-numeric:tabular-nums; }
+    input[type=range] { width:100%; accent-color:var(--mint); }
+    .toggle-list { margin-top:14px; display:flex; flex-direction:column; gap:10px; }
+    .toggle-row { display:flex; align-items:center; justify-content:space-between; gap:12px; color:var(--muted); font-size:12px; }
+    .switch { width:34px; height:20px; border-radius:999px; border:1px solid #465065; background:#202635; position:relative; padding:0; transition:.2s; }
+    .switch::after { content:""; width:14px; height:14px; border-radius:50%; background:#8190a4; position:absolute; top:2px; left:3px; transition:.2s; }
+    .switch.on { background:rgba(139,247,199,.18); border-color:rgba(139,247,199,.45); }
+    .switch.on::after { left:16px; background:var(--mint); }
+    .key-row { display:flex; gap:7px; margin-top:13px; flex-wrap:wrap; }
+    .key { border:1px solid var(--line); color:#c6cedb; background:#181d29; border-radius:7px; padding:6px 8px; font-size:11px; }
+    .key kbd { color:var(--mint); font-weight:700; margin-right:4px; }
+    .tip { border-radius:12px; border:1px solid rgba(255,214,110,.2); background:rgba(255,214,110,.06); padding:12px; color:#c9bd93; font-size:12px; line-height:1.5; }
+    .tip strong { color:var(--yellow); font-weight:750; }
+    .ad-slot { min-height:76px; margin-top:18px; border:1px dashed #2a3445; border-radius:14px; display:flex; align-items:center; justify-content:center; color:#667183; background:rgba(10,12,18,.34); font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+    .tool-drawer { padding: 0; overflow:hidden; }
+    .tool-drawer summary { list-style:none; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:17px; cursor:pointer; }
+    .tool-drawer summary::-webkit-details-marker { display:none; }
+    .tool-drawer summary > span:first-child { display:flex; flex-direction:column; gap:4px; }
+    .tool-drawer .card-title { margin-top:0; }
+    .drawer-chevron { color:var(--muted); transition:transform .2s ease; font-size:18px; }
+    .tool-drawer[open] .drawer-chevron { transform:rotate(180deg); }
+    .tool-panel { padding:0 17px 17px; }
+    .tool-tabs { display:flex; gap:6px; border-bottom:1px solid var(--line-soft); padding-bottom:9px; }
+    .tool-tab { border:0; background:transparent; color:var(--muted); padding:7px 8px; border-radius:7px; font-size:12px; }
+    .tool-tab:hover, .tool-tab.active { color:var(--text); background:#1c2331; }
+    .tool-copy { color:var(--muted); font-size:12px; line-height:1.45; margin:11px 0; }
+    .tool-row { display:flex; align-items:center; gap:8px; margin-top:10px; }
+    .tool-row label { color:var(--muted); font-size:11px; }
+    .tool-row .number-input { width:76px; padding:7px 8px; }
+    .tool-action { border:1px solid #43516a; background:#182130; color:var(--text); border-radius:8px; padding:8px 10px; font-size:12px; }
+    .tool-action:hover { border-color:#6b7e9b; background:#202a3b; }
+    .mini-table { width:100%; border-collapse:collapse; margin-top:11px; font-size:12px; }
+    .mini-table th, .mini-table td { text-align:right; padding:7px 5px; border-bottom:1px solid var(--line-soft); font-variant-numeric:tabular-nums; }
+    .mini-table th { color:var(--muted-2); font-size:10px; text-transform:uppercase; letter-spacing:.08em; }
+    .mini-table td { color:#d9e0e9; }
+    .analysis-list { display:grid; gap:8px; margin-top:12px; }
+    .analysis-item { display:flex; justify-content:space-between; gap:12px; color:var(--muted); font-size:12px; }
+    .analysis-item strong { color:var(--text); font-weight:650; text-align:right; }
+    .analysis-note { color:var(--muted-2); font-size:11px; line-height:1.4; margin-top:11px; }
+    .export-list { display:grid; gap:8px; margin-top:12px; }
+    .module-nav { display:flex; align-items:center; gap:7px; margin:0 0 14px; padding:5px; border:1px solid var(--line); border-radius:13px; background:rgba(16,19,27,.8); overflow-x:auto; }
+    .module-label { color:var(--muted-2); font-size:11px; text-transform:uppercase; letter-spacing:.12em; font-weight:800; padding:0 9px; white-space:nowrap; }
+    .module-tab { border:0; background:transparent; color:var(--muted); border-radius:9px; padding:9px 12px; font-size:13px; white-space:nowrap; }
+    .module-tab:hover, .module-tab.active { color:var(--text); background:#202838; }
+    .module-view { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr); gap:16px; align-items:start; }
+    .module-card { padding:18px; }
+    .module-card h2 { margin:5px 0 7px; font-size:22px; letter-spacing:-.03em; }
+    .module-card p { color:var(--muted); font-size:13px; line-height:1.5; margin:0 0 15px; }
+    .module-layout { display:grid; gap:16px; }
+    .module-textarea { width:100%; min-height:205px; resize:vertical; border:1px solid var(--line); background:#0c1018; color:var(--text); border-radius:11px; padding:11px; outline:none; font:13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .module-textarea:focus { border-color:#58718d; }
+    .module-action { border:1px solid #43516a; background:#1b2636; color:var(--text); border-radius:9px; padding:9px 12px; font-size:12px; font-weight:650; }
+    .module-action:hover { border-color:#7b8fae; background:#243247; }
+    .module-output { margin-top:14px; display:grid; gap:9px; }
+    .module-output-row { display:flex; justify-content:space-between; gap:12px; border-bottom:1px solid var(--line-soft); padding-bottom:8px; color:var(--muted); font-size:12px; }
+    .module-output-row strong { color:var(--text); font-weight:650; text-align:right; }
+    .stats-graph { width:100%; height:auto; min-height:340px; display:block; background:#0d1119; border-radius:13px; }
+    .stats-graph .grid { stroke:#222b39; stroke-width:1; }
+    .stats-graph .axis { stroke:#566176; stroke-width:1.3; }
+    .stats-graph .trend { stroke:var(--blue); stroke-width:3; fill:none; }
+    .stats-graph .point { fill:var(--mint); stroke:#0d1119; stroke-width:2; }
+    .stats-graph text { fill:#778398; font-size:11px; font-family:inherit; }
+    .solver-result { margin-top:14px; border:1px solid var(--line); background:#0d1119; border-radius:11px; padding:13px; color:var(--muted); font-size:13px; line-height:1.5; }
+    .solver-result strong { color:var(--mint); }
+    .section-row { margin:46px 0 17px; display:flex; align-items:end; justify-content:space-between; gap:20px; }
+    .section-row h2 { margin:0; font-size:20px; letter-spacing:-.03em; }
+    .section-row p { margin:0; color:var(--muted); font-size:12px; }
+    .guide-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding-bottom:42px; }
+    .guide-card { padding:16px; min-height:120px; }
+    .guide-index { color:var(--mint); font-size:12px; font-weight:800; }
+    .guide-card h3 { font-size:14px; margin:10px 0 6px; letter-spacing:-.01em; }
+    .guide-card p { margin:0; color:var(--muted); font-size:12px; line-height:1.5; }
+    footer { border-top:1px solid var(--line-soft); padding:18px 0 26px; color:var(--muted-2); font-size:12px; display:flex; justify-content:space-between; gap:15px; }
+    footer a { color:var(--muted); text-decoration:none; }
+    footer a:hover { color:var(--text); }
+    .toast { position:fixed; left:50%; bottom:24px; transform:translate(-50%, 12px); opacity:0; pointer-events:none; background:#f7f8f5; color:#0e1218; padding:10px 14px; border-radius:10px; font-size:12px; font-weight:700; transition:.22s ease; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+    .toast.show { opacity:1; transform:translate(-50%, 0); }
+    @media (max-width: 980px) {
+      .workspace { grid-template-columns: 1fr; }
+      .side { display:grid; grid-template-columns:1fr 1fr; align-items:start; }
+      .side-card:last-child { grid-column:1 / -1; }
+      #graph { min-height: 500px; }
+    }
+    @media (max-width: 680px) {
+      .shell { width:min(100% - 24px, 1440px); }
+      .topbar { height:66px; }
+      .nav a:not(.active) { display:none; }
+      .status { display:none; }
+      .page-intro { padding-top:25px; display:block; }
+      .intro-note { text-align:left; margin-top:13px; }
+      .side { display:flex; }
+      .side-card { padding:14px; }
+      .graph-head { align-items:flex-start; }
+      .graph-title { display:none; }
+      #graph { min-height: 410px; }
+      .graph-foot { align-items:flex-start; flex-direction:column; gap:7px; }
+      .module-view { grid-template-columns:1fr; }
+      .guide-grid { grid-template-columns:1fr; }
+      .section-row { align-items:flex-start; flex-direction:column; gap:6px; }
+      footer { flex-direction:column; }
+    }
+  </style>
+  <link rel="stylesheet" href="ui-fixes.css">
+  <script src="math-ui.js"></script>
+  <script src="calc-engine.js"></script>
+  <script src="offline-update.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Spectrum Calc home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-name">spectrum calc<small>free graphing lab</small></span>
+      </a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="active" href="#graph-workspace">Graph</a>
+        <a href="advanced.html">Advanced lab</a>
+        <a href="#guide">Quick guide</a>
+        <a href="#about">About</a>
+      </nav>
+      <div class="status"><i aria-hidden="true"></i> Runs in your browser</div>
+    </header>
+
+    <main id="top">
+      <section class="page-intro" aria-labelledby="page-title">
+        <div>
+          <div class="eyebrow">A clearer way to see equations</div>
+          <h1 id="page-title">Plot it. Tune it. Understand it.</h1>
+          <p class="intro-copy">A free, fast graphing calculator for school, study, and the moments when a formula makes more sense as a shape.</p>
+        </div>
+        <div class="intro-note"><strong>No sign-in. No install.</strong> Your work stays on this device.</div>
+      </section>
+
+      <div class="module-nav" role="tablist" aria-label="Calculator modules">
+        <span class="module-label">Workspace</span>
+        <button class="module-tab active" type="button" role="tab" aria-selected="true" data-module="graph">Graph</button>
+        <button class="module-tab" type="button" role="tab" aria-selected="false" data-module="table">Table</button>
+        <button class="module-tab" type="button" role="tab" aria-selected="false" data-module="statistics">Statistics</button>
+        <button class="module-tab" type="button" role="tab" aria-selected="false" data-module="solve">Solve</button>
+      </div>
+
+      <section class="workspace" id="graph-workspace" aria-label="Graphing calculator workspace">
+        <div class="card graph-card">
+          <div class="graph-head">
+            <div class="head-left">
+              <span class="live-pill"><span></span> LIVE GRAPH</span>
+              <span class="graph-title">Drag across the plot to inspect a point</span>
+            </div>
+            <div class="toolbar">
+              <button class="icon-btn" id="reset-view" title="Reset view" aria-label="Reset view">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12a8 8 0 1 0 2.3-5.7"/><path d="M4 5v5h5"/></svg>
+              </button>
+              <button class="icon-btn" id="share-graph" title="Copy link" aria-label="Copy graph link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8.5 12.5 15 6a3.2 3.2 0 0 1 4.5 4.5L13 17a3.2 3.2 0 0 1-4.5-4.5l1.8-1.8"/><path d="m15.5 11.5-6.2 6.2a3.2 3.2 0 0 1-4.5-4.5L11 7"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="graph-wrap">
+            <svg id="graph" viewBox="0 0 860 560" role="img" aria-label="Function graph"></svg>
+            <div class="graph-readout" aria-live="polite">
+              <div class="readout-label">Cursor readout</div>
+              <div class="readout-value" id="readout">Move over the graph</div>
+            </div>
+          </div>
+          <div class="graph-foot">
+            <span><i class="legend-dot" style="background:var(--mint)"></i> f(x) = sin(x)</span>
+            <span id="graph-meta">X −10 to 10 &nbsp;·&nbsp; Y −5 to 5</span>
+          </div>
+        </div>
+
+        <aside class="side" aria-label="Graph controls">
+          <div class="card side-card">
+            <div class="card-kicker">01 / expressions</div>
+            <div class="card-title">What do you want to see?</div>
+            <div class="card-subtitle">Click a formula to edit it. Type <strong>x^2</strong> for x², then press Enter to finish.</div>
+            <div class="expression-list" id="expression-list">
+              <div class="expression-row">
+                <span class="color-dot" style="background:var(--mint)"></span>
+                <div class="math-input-shell"><input class="expression-input math-source" value="sin(x)" aria-label="Function 1" spellcheck="false" /></div>
+                <button class="row-menu" aria-label="Remove expression" title="Remove expression">×</button>
+              </div>
+              <div class="expression-row">
+                <span class="color-dot" style="background:var(--blue)"></span>
+                <div class="math-input-shell"><input class="expression-input math-source" value="0.5 * x" aria-label="Function 2" spellcheck="false" /></div>
+                <button class="row-menu" aria-label="Remove expression" title="Remove expression">×</button>
+              </div>
+              <div class="expression-row">
+                <span class="color-dot" style="background:var(--pink)"></span>
+                <div class="math-input-shell"><input class="expression-input math-source" value="x^2 / 8 - 1.2" aria-label="Function 3" spellcheck="false" /></div>
+                <button class="row-menu" aria-label="Remove expression" title="Remove expression">×</button>
+              </div>
+            </div>
+            <button class="add-expression" id="add-expression">＋ Add another expression</button>
+          </div>
+
+          <div class="card side-card">
+            <div class="card-kicker">02 / view</div>
+            <div class="card-title">Set the window</div>
+            <div class="mini-grid">
+              <div class="field"><label for="x-min">X minimum</label><input id="x-min" class="number-input" type="number" value="-10" step="1" /></div>
+              <div class="field"><label for="x-max">X maximum</label><input id="x-max" class="number-input" type="number" value="10" step="1" /></div>
+              <div class="field"><label for="y-min">Y minimum</label><input id="y-min" class="number-input" type="number" value="-5" step="1" /></div>
+              <div class="field"><label for="y-max">Y maximum</label><input id="y-max" class="number-input" type="number" value="5" step="1" /></div>
+            </div>
+            <div class="toggle-list">
+              <div class="toggle-row"><span>Show grid</span><button class="switch on" data-toggle="grid" aria-label="Toggle grid" aria-pressed="true"></button></div>
+              <div class="toggle-row"><span>Show axes</span><button class="switch on" data-toggle="axes" aria-label="Toggle axes" aria-pressed="true"></button></div>
+            </div>
+          </div>
+
+          <div class="card side-card">
+            <div class="card-kicker">03 / shortcuts</div>
+            <div class="card-title">Make it yours</div>
+            <div class="key-row"><span class="key"><kbd>+</kbd> Zoom in</span><span class="key"><kbd>−</kbd> Zoom out</span><span class="key"><kbd>R</kbd> Reset</span></div>
+            <div class="tip" style="margin-top:14px"><strong>Try this:</strong> change <em>sin(x)</em> to <em>a * sin(b*x) + c</em>, then open <em>Explore tools → Sliders</em>.</div>
+          </div>
+          <details class="card side-card tool-drawer">
+            <summary><span><span class="card-kicker">04 / tools</span><span class="card-title">Explore tools</span></span><span class="drawer-chevron" aria-hidden="true">⌄</span></summary>
+            <div class="tool-panel" id="tool-panel" aria-live="polite"></div>
+          </details>
+        </aside>
+      </section>
+      <section class="module-view" id="table-module" aria-label="Table module" hidden>
+        <div class="card module-card">
+          <div class="card-kicker">Table / values</div>
+          <h2>See the numbers behind the curve.</h2>
+          <p>Sample the first expression at regular intervals. Change the range or step to focus on a smaller detail.</p>
+          <div class="mini-grid">
+            <div class="field"><label for="full-table-start">Start x</label><input id="full-table-start" class="number-input" type="number" value="-5" step="0.25" /></div>
+            <div class="field"><label for="full-table-step">Step</label><input id="full-table-step" class="number-input" type="number" value="1" min="0.01" step="0.25" /></div>
+          </div>
+          <button class="module-action" id="refresh-table" type="button" style="margin-top:14px">Refresh values</button>
+          <div id="full-table-output"></div>
+        </div>
+        <div class="card module-card">
+          <div class="card-kicker">How to read it</div>
+          <h2>Numbers make patterns tangible.</h2>
+          <p>Use the table to compare exact inputs with the curve. Add a parameter expression such as <em>a * sin(b*x) + c</em> and the values update with the sliders.</p>
+          <div class="tip"><strong>Tip:</strong> use a smaller step when you are inspecting a fast-changing section of a function.</div>
+        </div>
+      </section>
+      <section class="module-view" id="statistics-module" aria-label="Statistics module" hidden>
+        <div class="card module-card">
+          <div class="card-kicker">Statistics / regression</div>
+          <h2>Turn a data set into a story.</h2>
+          <p>Enter one x,y pair per line. Spectrum Calc will plot the points and fit a straight-line model.</p>
+          <textarea class="module-textarea" id="stats-data" aria-label="Statistics data">1, 2
+2, 3.1
+3, 4.8
+4, 6.2
+5, 7.1
+6, 8.9</textarea>
+          <button class="module-action" id="run-statistics" type="button" style="margin-top:14px">Fit line</button>
+          <div class="module-output" id="stats-output" aria-live="polite"></div>
+        </div>
+        <div class="card module-card">
+          <div class="card-kicker">Scatter plot</div>
+          <svg class="stats-graph" id="stats-graph" viewBox="0 0 800 420" role="img" aria-label="Scatter plot and regression line"></svg>
+        </div>
+      </section>
+      <section class="module-view" id="solve-module" aria-label="Solve module" hidden>
+        <div class="card module-card">
+          <div class="card-kicker">Solve / numeric roots</div>
+          <h2>Find where a function reaches zero.</h2>
+          <p>Use the current graph window to look for numerical roots. This is the first step toward a broader equation-solving workspace.</p>
+          <div class="field"><label for="solver-expression">Expression in x</label><input id="solver-expression" class="number-input math-source" value="x^2 - 4" spellcheck="false" /><div class="math-preview" id="solver-expression-preview"></div></div>
+          <button class="module-action" id="run-solver" type="button" style="margin-top:14px">Find roots</button>
+          <div class="solver-result" id="solver-result" aria-live="polite">Enter an expression and search the current window.</div>
+        </div>
+        <div class="card module-card">
+          <div class="card-kicker">Current window</div>
+          <h2 id="solver-window">X −10 to 10</h2>
+          <p>Roots are searched numerically across the current x window. Adjust the Graph view first if you want to explore a different region.</p>
+          <div class="tip"><strong>Note:</strong> numerical results are approximations and may miss roots around discontinuities or very narrow features.</div>
+        </div>
+      </section>
+      <div class="ad-slot" data-ad-slot="spectrum-calc-v1" aria-label="Advertisement">Ad space · keeps the core free</div>
+
+      <section id="guide">
+        <div class="section-row"><h2>Start in three moves</h2><p>Everything updates locally, as you type.</p></div>
+        <div class="guide-grid">
+          <article class="card guide-card"><div class="guide-index">01</div><h3>Write a function</h3><p>Use familiar notation like <em>sin(x)</em>, <em>x^2</em>, or <em>sqrt(x)</em>.</p></article>
+          <article class="card guide-card"><div class="guide-index">02</div><h3>Shape the window</h3><p>Set the x and y bounds to focus on the detail you need.</p></article>
+          <article class="card guide-card"><div class="guide-index">03</div><h3>Read the pattern</h3><p>Hover over the curve to inspect coordinates and compare functions.</p></article>
+        </div>
+      </section>
+    </main>
+
+    <footer id="about"><span>Built for curious minds · Spectrum Calc</span><a href="#top">Back to top ↑</a></footer>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const graph = document.getElementById('graph');
+    const readout = document.getElementById('readout');
+    const toast = document.getElementById('toast');
+    const colors = ['#8bf7c7', '#7cd9ff', '#ff7eb6', '#ffd66e', '#bba7ff'];
+    let view = { xMin: -10, xMax: 10, yMin: -5, yMax: 5, grid: true, axes: true };
+    let parameterValues = { a: 1, b: 1, c: 0 };
+    let toastTimer;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2100);
+    }
+
+    function el(name, attrs = {}, text = '') {
+      const node = document.createElementNS(SVG_NS, name);
+      Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+      if (text) node.textContent = text;
+      return node;
+    }
+
+    function parseFunction(source) {
+      try { return CalcEngine.compile(source, ['x','a','b','c']); }
+      catch { return null; }
+    }
+
+    function evaluate(fn, x) {
+      return fn(x, parameterValues.a, parameterValues.b, parameterValues.c);
+    }
+
+    function collectExpressions() {
+      return [...document.querySelectorAll('.expression-input')].map((input, i) => ({ source: input.value, fn: parseFunction(input.value), color: colors[i % colors.length] }));
+    }
+
+    function niceStep(range) {
+      const rough = range / 8;
+      const power = Math.pow(10, Math.floor(Math.log10(rough)));
+      const fraction = rough / power;
+      const nice = fraction < 1.5 ? 1 : fraction < 3 ? 2 : fraction < 7 ? 5 : 10;
+      return nice * power;
+    }
+
+    function formatNumber(value) {
+      if (!Number.isFinite(value)) return '—';
+      return Number(value.toPrecision(8)).toString();
+    }
+
+    function renderGraph() {
+      const W = 860, H = 560;
+      const pad = { left: 50, right: 24, top: 24, bottom: 37 };
+      const plotW = W - pad.left - pad.right, plotH = H - pad.top - pad.bottom;
+      const xToPx = x => pad.left + ((x - view.xMin) / (view.xMax - view.xMin)) * plotW;
+      const yToPx = y => pad.top + (1 - (y - view.yMin) / (view.yMax - view.yMin)) * plotH;
+      graph.replaceChildren();
+      const defs = el('defs');
+      const bg = el('linearGradient', { id: 'plot-bg', x1:'0', y1:'0', x2:'1', y2:'1' });
+      bg.append(el('stop', { offset:'0%', 'stop-color':'#111825' }), el('stop', { offset:'100%', 'stop-color':'#0b1018' }));
+      defs.append(bg); graph.append(defs);
+      graph.append(el('rect', { x:0, y:0, width:W, height:H, fill:'url(#plot-bg)' }));
+      const step = niceStep(view.xMax - view.xMin);
+      const minor = step / 2;
+      const yStep = niceStep(view.yMax - view.yMin), yMinor = yStep / 2;
+      const gridGroup = el('g', { 'aria-hidden':'true' });
+      if (view.grid) {
+        for (let x = Math.ceil(view.xMin / minor) * minor, count=0; x <= view.xMax + minor / 2 && count<100; x += minor, count++) {
+          const major = Math.abs(Math.round(x / step) - x / step) < .001;
+          gridGroup.append(el('line', { x1:xToPx(x), y1:pad.top, x2:xToPx(x), y2:pad.top + plotH, class: major ? 'grid' : 'minor-grid' }));
+        }
+        for (let y = Math.ceil(view.yMin / yMinor) * yMinor, count=0; y <= view.yMax + yMinor / 2 && count<100; y += yMinor, count++) {
+          const major = Math.abs(Math.round(y / yStep) - y / yStep) < .001;
+          gridGroup.append(el('line', { x1:pad.left, y1:yToPx(y), x2:pad.left + plotW, y2:yToPx(y), class: major ? 'grid' : 'minor-grid' }));
+        }
+      }
+      graph.append(gridGroup);
+      if (view.axes) {
+        const xAxisY = view.yMin <= 0 && view.yMax >= 0 ? yToPx(0) : pad.top + plotH;
+        const yAxisX = view.xMin <= 0 && view.xMax >= 0 ? xToPx(0) : pad.left;
+        graph.append(el('line', { x1:pad.left, y1:xAxisY, x2:pad.left + plotW, y2:xAxisY, class:'axis' }), el('line', { x1:yAxisX, y1:pad.top, x2:yAxisX, y2:pad.top + plotH, class:'axis' }));
+      }
+      const labels = el('g', { 'aria-hidden':'true' });
+      for (let x = Math.ceil(view.xMin / step) * step, count=0; x <= view.xMax + step / 2 && count<100; x += step, count++) {
+        if (Math.abs(x) < step / 100) continue;
+        labels.append(el('text', { x:xToPx(x), y:H - 13, 'text-anchor':'middle' }, formatNumber(x)));
+      }
+      for (let y = Math.ceil(view.yMin / yStep) * yStep, count=0; y <= view.yMax + yStep / 2 && count<100; y += yStep, count++) {
+        if (Math.abs(y) < yStep / 100) continue;
+        labels.append(el('text', { x:pad.left - 10, y:yToPx(y) + 4, 'text-anchor':'end' }, formatNumber(y)));
+      }
+      graph.append(labels);
+      const expressions = collectExpressions();
+      document.querySelectorAll('.expression-input').forEach((input,i)=>{
+        input.setAttribute('aria-invalid',String(!!input.value.trim()&&!expressions[i].fn));
+        input.title=input.value.trim()&&!expressions[i].fn?'Check this expression. Use x, a, b, c and supported math functions.':'';
+      });
+      expressions.forEach(({ fn, color }) => {
+        if (!fn) return;
+        let d = '', drawing = false;
+        const samples = 900;
+        for (let i = 0; i <= samples; i++) {
+          const x = view.xMin + (i / samples) * (view.xMax - view.xMin);
+          let y;
+          try { y = Number(evaluate(fn, x)); } catch { y = NaN; }
+          const visible = Number.isFinite(y) && Math.abs(y) < 1e4 && y >= view.yMin - (view.yMax - view.yMin) * 2 && y <= view.yMax + (view.yMax - view.yMin) * 2;
+          if (!visible) { drawing = false; continue; }
+          const px = xToPx(x), py = yToPx(y);
+          if (!drawing) { d += 'M ' + px.toFixed(2) + ' ' + py.toFixed(2); drawing = true; } else { d += ' L ' + px.toFixed(2) + ' ' + py.toFixed(2); }
+        }
+        graph.append(el('path', { d, class:'curve', stroke:color }));
+      });
+      const invalid = expressions.filter(e=>e.source.trim()&&!e.fn).length;
+      const meta = `X ${formatNumber(view.xMin)} to ${formatNumber(view.xMax)}  ·  Y ${formatNumber(view.yMin)} to ${formatNumber(view.yMax)}`+(invalid?` · ${invalid} invalid expression(s)—check the highlighted fields.`:'');
+      document.getElementById('graph-meta').textContent = meta;
+      const first = document.querySelector('.expression-input');
+      const legend = document.querySelector('.graph-foot span:first-child');
+      const dot = document.createElement('i'); dot.className = 'legend-dot'; dot.style.background = 'var(--mint)';
+      legend.replaceChildren(dot, document.createTextNode(' f(x) = ' + (first?.value || '—')));
+    }
+
+    function updateViewFromInputs() {
+      try {
+        const values = [...CalcEngine.interval(document.getElementById('x-min').value+','+document.getElementById('x-max').value,'Horizontal range'),...CalcEngine.interval(document.getElementById('y-min').value+','+document.getElementById('y-max').value,'Vertical range')];
+        [view.xMin, view.xMax, view.yMin, view.yMax] = values;
+        renderGraph();
+        renderToolPanel();
+      } catch(error) { document.getElementById('graph-meta').textContent=error.message; }
+    }
+
+    function valueAt(fn, x) {
+      if (!fn) return NaN;
+      try { const value = Number(evaluate(fn, x)); return Number.isFinite(value) ? value : NaN; } catch { return NaN; }
+    }
+
+    function approximateRoots(fn, min, max) {
+      try { return CalcEngine.roots(x=>valueAt(fn,x),min,max).roots; } catch { return []; }
+    }
+
+    function approximateIntegral(fn, min, max) {
+      const steps = 400;
+      const width = (max - min) / steps;
+      let total = 0;
+      for (let i = 0; i <= steps; i++) {
+        const value = valueAt(fn, min + i * width);
+        if (!Number.isFinite(value)) return NaN;
+        total += (i === 0 || i === steps ? 0.5 : 1) * value;
+      }
+      return total * width;
+    }
+
+    let activeTool = 'table';
+    function renderToolPanel() {
+      const panel = document.getElementById('tool-panel');
+      if (!panel) return;
+      panel.replaceChildren();
+      const tabs = document.createElement('div');
+      tabs.className = 'tool-tabs';
+      [['table', 'Values'], ['analyze', 'Analyze'], ['parameters', 'Sliders'], ['export', 'Export']].forEach(([key, label]) => {
+        const tab = document.createElement('button');
+        tab.type = 'button'; tab.className = 'tool-tab' + (activeTool === key ? ' active' : ''); tab.textContent = label; tab.setAttribute('aria-pressed', activeTool === key);
+        tab.addEventListener('click', () => { activeTool = key; renderToolPanel(); });
+        tabs.append(tab);
+      });
+      panel.append(tabs);
+      const expressions = collectExpressions();
+      const first = expressions[0];
+      const content = document.createElement('div');
+      if (!first?.fn) {
+        const message = document.createElement('p'); message.className = 'tool-copy'; message.textContent = 'Enter a valid first expression to use these tools.'; content.append(message); panel.append(content); return;
+      }
+      if (activeTool === 'table') {
+        const copy = document.createElement('p'); copy.className = 'tool-copy'; copy.textContent = 'Sample the first expression across a small window.'; content.append(copy);
+        const row = document.createElement('div'); row.className = 'tool-row';
+        const label = document.createElement('label'); label.setAttribute('for', 'table-step'); label.textContent = 'Step';
+        const stepInput = document.createElement('input'); stepInput.id = 'table-step'; stepInput.className = 'number-input'; stepInput.type = 'number'; stepInput.min = '0.01'; stepInput.step = '0.25'; stepInput.value = '1';
+        row.append(label, stepInput); content.append(row);
+        const table = document.createElement('table'); table.className = 'mini-table';
+        const head = document.createElement('thead'); const headRow = document.createElement('tr');
+        ['x', 'f(x)'].forEach(labelText => { const th = document.createElement('th'); th.textContent = labelText; headRow.append(th); });
+        head.append(headRow); table.append(head);
+        const body = document.createElement('tbody');
+        const drawTable = () => {
+          body.replaceChildren(); const step = Math.max(0.01, Number(stepInput.value) || 1); const start = Math.max(view.xMin, -5); const end = Math.min(view.xMax, 5);
+          for (let x = start, count = 0; x <= end + step / 100 && count < 15; x += step, count++) {
+            const tr = document.createElement('tr'); const xCell = document.createElement('td'); const yCell = document.createElement('td'); xCell.textContent = formatNumber(x); yCell.textContent = formatNumber(valueAt(first.fn, x)); tr.append(xCell, yCell); body.append(tr);
+          }
+        };
+        stepInput.addEventListener('input', drawTable); drawTable(); table.append(body); content.append(table);
+      } else if (activeTool === 'analyze') {
+        const copy = document.createElement('p'); copy.className = 'tool-copy'; copy.textContent = 'Quick numeric checks for the first expression.'; content.append(copy);
+        const row = document.createElement('div'); row.className = 'tool-row';
+        const label = document.createElement('label'); label.setAttribute('for', 'analysis-x'); label.textContent = 'At x =';
+        const xInput = document.createElement('input'); xInput.id = 'analysis-x'; xInput.className = 'number-input'; xInput.type = 'number'; xInput.step = '0.25'; xInput.value = '0';
+        row.append(label, xInput); content.append(row);
+        const list = document.createElement('div'); list.className = 'analysis-list';
+        const makeItem = (labelText, value) => { const item = document.createElement('div'); item.className = 'analysis-item'; const name = document.createElement('span'); const result = document.createElement('strong'); name.textContent = labelText; result.textContent = value; item.append(name, result); list.append(item); };
+        const refresh = () => {
+          const x = Number(xInput.value) || 0; const y = valueAt(first.fn, x); const h = 0.0001 * (1 + Math.abs(x)); const derivative = (valueAt(first.fn, x + h) - valueAt(first.fn, x - h)) / (2 * h); const roots = approximateRoots(first.fn, view.xMin, view.xMax); const integral = approximateIntegral(first.fn, view.xMin, view.xMax);
+          list.replaceChildren(); makeItem('f(x)', formatNumber(y)); makeItem('derivative', formatNumber(derivative)); makeItem('roots in view', roots.length ? roots.map(formatNumber).join(', ') : 'none found'); makeItem('area in view', formatNumber(integral));
+        };
+        xInput.addEventListener('input', refresh); refresh(); content.append(list);
+        const note = document.createElement('div'); note.className = 'analysis-note'; note.textContent = 'Values are numerical approximations, useful for exploration rather than proof.'; content.append(note);
+      } else if (activeTool === 'parameters') {
+        const copy = document.createElement('p'); copy.className = 'tool-copy'; copy.textContent = 'Use a, b, and c in an expression to make it interactive, for example a * sin(b*x) + c.'; content.append(copy);
+        const source = expressions.map(expression => expression.source).join(' ');
+        const names = ['a', 'b', 'c'].filter(name => new RegExp('\\b' + name + '\\b', 'i').test(source));
+        if (!names.length) {
+          const note = document.createElement('div'); note.className = 'analysis-note'; note.textContent = 'No parameters are active yet. Add a, b, or c to an expression and the sliders will appear here.'; content.append(note);
+        }
+        names.forEach(name => {
+          const row = document.createElement('div'); row.className = 'range-row';
+          const labelRow = document.createElement('div'); labelRow.className = 'range-label'; const label = document.createElement('span'); label.textContent = name; const output = document.createElement('output'); output.textContent = formatNumber(parameterValues[name]); labelRow.append(label, output);
+          const slider = document.createElement('input'); slider.type = 'range'; slider.min = '-5'; slider.max = '5'; slider.step = '0.25'; slider.value = parameterValues[name]; slider.setAttribute('aria-label', 'Parameter ' + name);
+          slider.addEventListener('input', () => { parameterValues[name] = Number(slider.value); output.textContent = formatNumber(parameterValues[name]); renderGraph(); });
+          row.append(labelRow, slider); content.append(row);
+        });
+      } else {
+        const copy = document.createElement('p'); copy.className = 'tool-copy'; copy.textContent = 'Save what is on the graph or print a worksheet from this view.'; content.append(copy);
+        const actions = document.createElement('div'); actions.className = 'export-list';
+        [['download-svg', 'Download SVG'], ['download-png', 'Download PNG'], ['print-graph', 'Print worksheet']].forEach(([id, labelText]) => { const button = document.createElement('button'); button.type = 'button'; button.className = 'tool-action'; button.id = id; button.textContent = labelText; actions.append(button); });
+        content.append(actions);
+        document.getElementById('download-svg').addEventListener('click', () => {
+          const source = new XMLSerializer().serializeToString(graph); const blob = new Blob([source], { type:'image/svg+xml' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = 'spectrum-calc-graph.svg'; link.click(); URL.revokeObjectURL(url);
+        });
+        document.getElementById('download-png').addEventListener('click', () => {
+          const source = new XMLSerializer().serializeToString(graph); const url = URL.createObjectURL(new Blob([source], { type:'image/svg+xml' })); const image = new Image(); image.onload = () => { const canvas = document.createElement('canvas'); canvas.width = 1720; canvas.height = 1120; const ctx = canvas.getContext('2d'); ctx.fillStyle = '#0d1119'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.drawImage(image, 0, 0, canvas.width, canvas.height); canvas.toBlob(blob => { const pngUrl = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = pngUrl; link.download = 'spectrum-calc-graph.png'; link.click(); URL.revokeObjectURL(pngUrl); }, 'image/png'); URL.revokeObjectURL(url); }; image.src = url;
+        });
+        document.getElementById('print-graph').addEventListener('click', () => window.print());
+      }
+      panel.append(content);
+    }
+
+    function appendOutputRow(parent, labelText, valueText) {
+      const row = document.createElement('div'); row.className = 'module-output-row'; const label = document.createElement('span'); const value = document.createElement('strong'); label.textContent = labelText; value.textContent = valueText; row.append(label, value); parent.append(row);
+    }
+
+    function renderFullTable() {
+      const output = document.getElementById('full-table-output'); if (!output) return; output.replaceChildren();
+      const expression = collectExpressions()[0];
+      if (!expression?.fn) { const note = document.createElement('p'); note.className = 'tool-copy'; note.textContent = 'Enter a valid first expression on the Graph tab.'; output.append(note); return; }
+      let start,step;
+      try{start=CalcEngine.finite(document.getElementById('full-table-start').value,'Start');step=CalcEngine.finite(document.getElementById('full-table-step').value,'Step');if(step===0)throw new Error('Step must not be zero.');}catch(error){output.textContent=error.message;return;}
+      const table = document.createElement('table'); table.className = 'mini-table'; const head = document.createElement('thead'); const headRow = document.createElement('tr'); ['x', 'f(x)'].forEach(labelText => { const th = document.createElement('th'); th.textContent = labelText; headRow.append(th); }); head.append(headRow); table.append(head);
+      const body = document.createElement('tbody'); for (let i = 0; i < 17; i++) { const x = start + i * step; const tr = document.createElement('tr'); const xCell = document.createElement('td'); const yCell = document.createElement('td'); xCell.textContent = formatNumber(x); yCell.textContent = formatNumber(valueAt(expression.fn, x)); tr.append(xCell, yCell); body.append(tr); } table.append(body); output.append(table);
+    }
+
+    function parseStatisticsData() {
+      return CalcEngine.dataPairs(document.getElementById('stats-data').value);
+    }
+
+    function renderStatistics() {
+      const svg = document.getElementById('stats-graph'); const output = document.getElementById('stats-output'); svg.replaceChildren(); output.replaceChildren();
+      let data;try{data=parseStatisticsData();}catch(error){output.textContent=error.message;return;}
+      if (data.length < 2) { const note = document.createElement('p'); note.className = 'tool-copy'; note.textContent = 'Add at least two valid x,y pairs.'; output.append(note); return; }
+      const meanX = data.reduce((sum, point) => sum + point.x, 0) / data.length; const meanY = data.reduce((sum, point) => sum + point.y, 0) / data.length;
+      const numerator = data.reduce((sum, point) => sum + (point.x - meanX) * (point.y - meanY), 0); const denominator = data.reduce((sum, point) => sum + Math.pow(point.x - meanX, 2), 0); const slope = denominator ? numerator / denominator : 0; const intercept = meanY - slope * meanX;
+      if(!denominator||![numerator,denominator,slope,intercept].every(Number.isFinite)){output.textContent='Cannot fit a line. Use distinct x values and finite, reasonably scaled data.';return;}
+      const total = data.reduce((sum, point) => sum + Math.pow(point.y - meanY, 2), 0); const residual = data.reduce((sum, point) => sum + Math.pow(point.y - (slope * point.x + intercept), 2), 0); const r2 = total ? 1 - residual / total : NaN;
+      const xValues = data.map(point => point.x); const yValues = data.map(point => point.y); const xLow = Math.min(...xValues), xHigh = Math.max(...xValues), yLow = Math.min(...yValues), yHigh = Math.max(...yValues); const xPad = (xHigh - xLow || 1) * .14, yPad = (yHigh - yLow || 1) * .18; const domain = { xMin:xLow-xPad, xMax:xHigh+xPad, yMin:yLow-yPad, yMax:yHigh+yPad }; const W=800,H=420,pad={left:48,right:20,top:18,bottom:38}; const xTo = x => pad.left + (x-domain.xMin)/(domain.xMax-domain.xMin)*(W-pad.left-pad.right); const yTo = y => pad.top + (1-(y-domain.yMin)/(domain.yMax-domain.yMin))*(H-pad.top-pad.bottom);
+      svg.append(el('rect', { x:0, y:0, width:W, height:H, fill:'#0d1119', rx:13 }));
+      for (let i=0;i<=4;i++) { const x=pad.left+i/4*(W-pad.left-pad.right); const y=pad.top+i/4*(H-pad.top-pad.bottom); svg.append(el('line',{x1:x,y1:pad.top,x2:x,y2:H-pad.bottom,class:'grid'}),el('line',{x1:pad.left,y1:y,x2:W-pad.right,y2:y,class:'grid'})); }
+      svg.append(el('line',{x1:pad.left,y1:H-pad.bottom,x2:W-pad.right,y2:H-pad.bottom,class:'axis'}),el('line',{x1:pad.left,y1:pad.top,x2:pad.left,y2:H-pad.bottom,class:'axis'}));
+      const trendPath = `M ${xTo(domain.xMin).toFixed(2)} ${yTo(slope*domain.xMin+intercept).toFixed(2)} L ${xTo(domain.xMax).toFixed(2)} ${yTo(slope*domain.xMax+intercept).toFixed(2)}`; svg.append(el('path',{d:trendPath,class:'trend'})); data.forEach(point => svg.append(el('circle',{cx:xTo(point.x),cy:yTo(point.y),r:6,class:'point'})));
+      svg.append(el('text',{x:pad.left,y:H-13},formatNumber(domain.xMin)),el('text',{x:W-pad.right,y:H-13,'text-anchor':'end'},formatNumber(domain.xMax)),el('text',{x:pad.left-8,y:pad.top+4,'text-anchor':'end'},formatNumber(domain.yMax)),el('text',{x:pad.left-8,y:H-pad.bottom+4,'text-anchor':'end'},formatNumber(domain.yMin)));
+      appendOutputRow(output, 'points', String(data.length)); appendOutputRow(output, 'model', `y = ${formatNumber(slope)}x ${intercept < 0 ? '−' : '+'} ${formatNumber(Math.abs(intercept))}`); appendOutputRow(output, 'R²', formatNumber(r2));
+    }
+
+    function runSolver() {
+      const input = document.getElementById('solver-expression'); const result = document.getElementById('solver-result'); const fn = parseFunction(input.value); const windowLabel = document.getElementById('solver-window'); windowLabel.textContent = `X ${formatNumber(view.xMin)} to ${formatNumber(view.xMax)}`;
+      result.replaceChildren(); if (!fn) { result.textContent = 'This expression could not be evaluated. Try something like x^2 - 4.'; return; }
+      const roots = approximateRoots(fn, view.xMin, view.xMax); const label = document.createElement('span'); const strong = document.createElement('strong'); strong.textContent = roots.length ? roots.map(formatNumber).join(', ') : 'none found'; label.textContent = 'Roots in the current window: '; label.append(strong); result.append(label);
+    }
+
+    const moduleViews = { graph: document.getElementById('graph-workspace'), table: document.getElementById('table-module'), statistics: document.getElementById('statistics-module'), solve: document.getElementById('solve-module') };
+    function setModule(name) {
+      Object.entries(moduleViews).forEach(([key, node]) => { node.hidden = key !== name; }); const adSlot = document.querySelector('.ad-slot'); if (adSlot) adSlot.hidden = name !== 'graph'; document.querySelectorAll('.module-tab').forEach(tab => { const active = tab.dataset.module === name; tab.classList.toggle('active', active); tab.setAttribute('aria-selected', active); });
+      if (name === 'table') renderFullTable(); if (name === 'statistics') renderStatistics(); if (name === 'solve') runSolver();
+    }
+
+    document.querySelectorAll('.module-tab').forEach(tab => tab.addEventListener('click', () => setModule(tab.dataset.module)));
+    document.getElementById('refresh-table').addEventListener('click', renderFullTable);
+    document.getElementById('run-statistics').addEventListener('click', renderStatistics);
+    document.getElementById('run-solver').addEventListener('click', runSolver);
+
+    document.querySelectorAll('.expression-input').forEach(input => input.addEventListener('input', () => { renderGraph(); renderToolPanel(); }));
+    document.querySelectorAll('.number-input').forEach(input => input.addEventListener('input', updateViewFromInputs));
+    document.querySelectorAll('.switch').forEach(button => button.addEventListener('click', () => {
+      const key = button.dataset.toggle; view[key] = !view[key]; button.classList.toggle('on', view[key]); button.setAttribute('aria-pressed', view[key]); renderGraph();
+    }));
+    document.getElementById('add-expression').addEventListener('click', () => {
+      const index = document.querySelectorAll('.expression-row').length;
+      const row = document.createElement('div'); row.className = 'expression-row';
+      row.innerHTML = `<span class="color-dot" style="background:${colors[index % colors.length]}"></span><input class="expression-input" value="" placeholder="e.g. cos(x)" aria-label="Function ${index + 1}" spellcheck="false" /><button class="row-menu" aria-label="Remove expression" title="Remove expression">×</button>`;
+      document.getElementById('expression-list').append(row);
+      row.querySelector('input').addEventListener('input', () => { renderGraph(); renderToolPanel(); }); row.querySelector('input').focus();
+    });
+    document.getElementById('expression-list').addEventListener('click', event => {
+      const button = event.target.closest('.row-menu'); if (!button) return;
+      const row = button.closest('.expression-row');
+      if (document.querySelectorAll('.expression-row').length === 1) row.querySelector('input').value = '';
+      else row.remove();
+      document.querySelectorAll('.expression-row').forEach((item, i) => {
+        item.querySelector('input').setAttribute('aria-label', `Function ${i + 1}`);
+        item.querySelector('.color-dot').style.background = colors[i % colors.length];
+      });
+      document.querySelector('.expression-input').focus(); renderGraph(); renderToolPanel();
+    });
+    document.getElementById('reset-view').addEventListener('click', () => {
+      view = { ...view, xMin:-10, xMax:10, yMin:-5, yMax:5 };
+      [['x-min',-10],['x-max',10],['y-min',-5],['y-max',5]].forEach(([id, value]) => document.getElementById(id).value = value);
+      renderGraph(); showToast('View reset');
+    });
+    document.getElementById('share-graph').addEventListener('click', async () => {
+      const params = new URLSearchParams({ f: [...document.querySelectorAll('.expression-input')].map(i => i.value).join('|') });
+      const url = location.origin + location.pathname + '?' + params.toString();
+      try { await navigator.clipboard.writeText(url); showToast('Graph link copied'); } catch { showToast('Link ready: ' + url); }
+    });
+    document.addEventListener('keydown', event => {
+      if (event.target.matches('input, textarea, select') || event.target.isContentEditable) return;
+      if (event.key.toLowerCase() === 'r') document.getElementById('reset-view').click();
+      if (event.key === '+' || event.key === '=') { const xMid=(view.xMin+view.xMax)/2, yMid=(view.yMin+view.yMax)/2; view={...view,xMin:xMid-(view.xMax-view.xMin)*.4,xMax:xMid+(view.xMax-view.xMin)*.4,yMin:yMid-(view.yMax-view.yMin)*.4,yMax:yMid+(view.yMax-view.yMin)*.4}; renderGraph(); }
+      if (event.key === '-' || event.key === '_') { const xMid=(view.xMin+view.xMax)/2, yMid=(view.yMin+view.yMax)/2; view={...view,xMin:xMid-(view.xMax-view.xMin)*.625,xMax:xMid+(view.xMax-view.xMin)*.625,yMin:yMid-(view.yMax-view.yMin)*.625,yMax:yMid+(view.yMax-view.yMin)*.625}; renderGraph(); }
+    });
+    graph.addEventListener('mousemove', event => {
+      const rect = graph.getBoundingClientRect(); const x = view.xMin + ((event.clientX - rect.left) / rect.width) * (view.xMax - view.xMin); const expr = collectExpressions()[0];
+      let y = NaN; if (expr?.fn) { try { y = Number(evaluate(expr.fn, x)); } catch {} }
+      readout.textContent = `x = ${formatNumber(x)}   ·   f(x) = ${formatNumber(y)}`;
+    });
+    graph.addEventListener('mouseleave', () => readout.textContent = 'Move over the graph');
+    const params = new URLSearchParams(location.search);
+    if (params.get('f')) {
+      const values = params.get('f').split('|'); document.querySelectorAll('.expression-input').forEach((input, i) => { if (values[i] !== undefined) input.value = values[i]; });
+    }
+    renderGraph();
+    renderToolPanel();
+    setModule('graph');
+  </script>
+</body>
+</html>
